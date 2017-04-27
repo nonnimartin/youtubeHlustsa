@@ -1,0 +1,21 @@
+{
+  "description": "Rip MP3s for the motherland",
+  "manifest_version": 2,
+  "name": "juche MP3 Ripper",
+  "version": "1.0",
+
+  "icons": {
+  "48": "icon.png"
+  },
+
+  "permissions": [
+  "<all_urls>"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["jquery-3.1.1.min.js","background.js"]
+    }
+  ]
+}
