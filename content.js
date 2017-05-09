@@ -34,21 +34,5 @@ $(document).ready(function () {
         localStorage.setItem("vidName", youtubeId);
     });
 
-    // window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
-    // //window.requestFileSystem(window.TEMPORARY, 5*1024*1024 /*5MB*/, onInitFs, errorHandler)
-
-    // window.requestFileSystem(window.TEMPORARY, 5*1024*1024 /*5MB*/, function (filesystem) {      
-    //     fileSysObj = filesystem;
-    // }, function (e) { console.log("Could not request File System"); });
-
-    // setTimeout(function() {writeToFile(fileSysObj);}, 1000);
-    // setTimeout(function() {readFromFile(fileSysObj);}, 2050);
-
-    //buttonsDiv.append('<button class="jucheDownload" type="button" title="Get MP3">Get MP3</button>')
-
-    // $( ".jucheDownload" ).click(function() {
-    //   alert( "Handler for .click() called." );
-    // });
-
 });
 
