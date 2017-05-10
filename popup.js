@@ -34,13 +34,35 @@ function getMp3() {
                  }
             }
             else {
-            	var url      = vars[0];
-            	var fileName = vars[1];
+            	var url        = vars[0];
+            	var fileName   = vars[1];
+            	var data       = vars[2];
+            	var argsString = "";
+
+
+                console.log(data);
+                //var results = ffmpeg_run({
+				  
+				 // arguments: argsString,
+				 // files: [
+				 //   {
+				 //     data: UInt8Array,
+				 //     name: string
+				 //   }
+				 // ]
+				 // });
+
+				// results is an Array of { data: UInt8Array, name: string }
+				// results.forEach(function(file) {
+				//   console.log("File recieved", file.name, file.data);
+				// });
 
             }
         })
     })
 };
+
+
 
 document.getElementById('getVid').addEventListener('click', getVid);
 document.getElementById('getMp3').addEventListener('click', getMp3);

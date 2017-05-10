@@ -23,7 +23,7 @@
  "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],
-      "js": ["jquery-3.1.1.min.js", "youtube-video/youtube-video.js", "content.js"]
+      "js": ["jquery-3.1.1.min.js", "videoconverter.js/build/ffmpeg.js", "youtube-video/youtube-video.js", "content.js"]
     }
   ],
 

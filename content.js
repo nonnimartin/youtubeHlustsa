@@ -4,11 +4,13 @@ $(document).ready(function () {
     function(message, sender, sendResponse) {
         switch(message.type) {
             case "getVars":
-                var vars = []
+                var vars = [];
                 var url  = localStorage.getItem("vidUrl");
                 var name = localStorage.getItem("vidName");
-                vars.push(url)
-                vars.push(name)
+                var data = httpGet(url);
+                vars.push(url);
+                vars.push(name);
+                vars.push(data);
                 sendResponse(vars);
                 break;
             default:
@@ -23,7 +25,7 @@ $(document).ready(function () {
         //xmlHttp.send( null );
         return xmlHttp.responseText;
     }
-  
+
     buttonsDiv = $( "#watch8-secondary-actions")
     var pathname   = window.location;
     var youtubeId  = pathname.toString().split("watch?v=")[1]
