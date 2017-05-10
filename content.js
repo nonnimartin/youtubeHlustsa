@@ -7,10 +7,8 @@ $(document).ready(function () {
                 var vars = [];
                 var url  = localStorage.getItem("vidUrl");
                 var name = localStorage.getItem("vidName");
-                var data = httpGet(url);
                 vars.push(url);
                 vars.push(name);
-                vars.push(data);
                 sendResponse(vars);
                 break;
             default:
@@ -18,13 +16,6 @@ $(document).ready(function () {
            }
         }
     );
-
-    function httpGet(theUrl) {
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open( "GET", theUrl, false );
-        //xmlHttp.send( null );
-        return xmlHttp.responseText;
-    }
 
     buttonsDiv = $( "#watch8-secondary-actions")
     var pathname   = window.location;

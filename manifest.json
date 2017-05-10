@@ -10,7 +10,7 @@
   },
 
   "permissions": [
-    "https://www.youtube.com/*",
+    "<all_urls>",
     "tabs",
     "downloads"
   ],

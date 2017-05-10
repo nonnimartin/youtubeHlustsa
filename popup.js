@@ -5,6 +5,13 @@ function downloadContent(url, fileName) {
 	});
 };
 
+function httpGet(theUrl) {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false );
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
+
 function getVid() {
 
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
@@ -36,11 +43,10 @@ function getMp3() {
             else {
             	var url        = vars[0];
             	var fileName   = vars[1];
-            	var data       = vars[2];
-            	var argsString = "";
+            	var argsString = ""
+            	//Get data from video url
+            	var data = httpGet(url);
 
-
-                console.log(data);
                 //var results = ffmpeg_run({
 				  
 				 // arguments: argsString,
