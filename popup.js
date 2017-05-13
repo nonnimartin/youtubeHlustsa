@@ -9,8 +9,98 @@ function httpGet(theUrl) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", theUrl, false );
     xmlHttp.send( null );
-    return xmlHttp.responseText;
-}
+    
+    var result = xmlHttp.response;
+
+    var args = '-i my_video.mp4 -c copy -map 0:a output_audio.mp4'
+
+    var results = ffmpeg_run({
+        arguments: args,
+        files: [
+        {
+          data: result,
+          name: "test"
+        }
+       ]
+    });
+
+  //   console.log(xmlHttp.response);
+  //   var buffer = new ArrayBuffer( res.length );
+  //   console.log(buffer.toString());
+  //   view   = new Uint8Array( buffer );
+  //   len    = view.length;
+  //   //return xmlHttp.responseText;
+  //   fromCharCode = String.fromCharCode, i, s, str;
+  //   str = "";
+    
+  //   for ( i = len; i--; ) {
+ 	//   view[i] = res[i].charCodeAt(0);
+ 	//     }
+
+  //   }
+
+ 	// for ( i = 0; i < len; ++i ) {
+ 	//   str += fromCharCode( view[i] );
+ 	// }  
+
+  //   str = "";
+
+ 	// for ( i = 0; i < len; ++i ) {
+ 	//   str += fromCharCode( res[i].charCodeAt(0) & 0xff );
+ 	// }
+
+// function httpGet(theUrl) {
+//     var xmlHttp = new XMLHttpRequest();
+//     //test
+//     console.log(theUrl)
+//     var reader = new FileReader();
+//     xmlHttp.open( "GET", theUrl);
+//     //xmlHttp.responseType = "arraybuffer";
+//     xmlHttp.send( null );
+    
+//     console.log(xmlHttp.responseText);
+
+//     var res = xmlHttp.response;
+
+//     var buffer = new ArrayBuffer( res.length ),
+//     view   = new Uint8Array( buffer ),
+//     len    = view.length,
+//     fromCharCode = String.fromCharCode, i, s, str;
+
+// 	str = "";
+
+// 	for ( i = len; i--; ) {
+// 	  view[i] = res[i].charCodeAt(0);
+// 	}
+
+// 	for ( i = 0; i < len; ++i ) {
+// 	  str += fromCharCode( view[i] );
+// 	}    
+
+// 	str = "";
+
+// 	for ( i = 0; i < len; ++i ) {
+// 	  str += fromCharCode( res[i].charCodeAt(0) & 0xff );
+// 	}
+
+// 	console.log(str)
+
+// }
+
+// function httpGet(theUrl) {
+// 	var xmlHttp = new XMLHttpRequest();
+// 	xmlHttp.open("GET", theUrl);
+// //  xmlHttp.responseType = "arraybuffer";
+
+// //  var blob = new Blob([xmlHttp.response], {type: "video/mp4"});
+// //  var objectUrl = URL.createObjectURL(blob);
+//     var blob = new Blob([xmlHttp.responseText], {type: "video/mp4"});
+// 	xmlHttp.send();
+	
+// 	return xmlHttp.responseText;
+
+
+// }
 
 function getVid() {
 
@@ -45,8 +135,10 @@ function getMp3() {
             	var fileName   = vars[1];
             	var argsString = ""
             	//Get data from video url
-            	var data = httpGet(url);
-
+            	
+            	httpGet(url);
+                
+                //downloadContent(data, "file.mp4");
                 //var results = ffmpeg_run({
 				  
 				 // arguments: argsString,
