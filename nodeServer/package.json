@@ -1,0 +1,33 @@
+{
+  "name": "youtube2mp3",
+  "version": "1.0.0",
+  "description": "take youtube videos and return mp3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nonnimartin/youtubeHlustsa.git"
+  },
+  "keywords": [
+    "youtube",
+    "mp3",
+    "conversion"
+  ],
+  "author": "Jonathan Martin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nonnimartin/youtubeHlustsa/issues"
+  },
+  "homepage": "https://github.com/nonnimartin/youtubeHlustsa#readme",
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "mongoose": "^4.10.6"
+  }
+}
