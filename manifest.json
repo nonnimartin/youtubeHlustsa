@@ -3,7 +3,7 @@
 
   "name": "juche MP3 from Youtube",
   "description": "MP3s for the motherland",
-  "version": "1.4",
+  "version": "1.5",
 
   "icons": {
     "48": "icon.png"
@@ -25,7 +25,7 @@
  "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],
-      "js": ["jquery-3.2.1.slim.min.js", "youtube-video/youtube-video.js", "content.js"]
+      "js": ["jquery-3.2.1.min.js", "youtube-video/youtube-video.js", "content.js"]
     }
   ],
 
