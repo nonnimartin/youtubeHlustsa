@@ -53,10 +53,10 @@ function getMp3() {
             var currentUrl = response.url
             console.log(currentUrl);
     });
-    
     //Ask for contentJSON data from content.js
-    chrome.extension.sendMessage({type: "getContentJSON"}, function (contentJSON) {
-
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {type: "getContentJSON"}, function(contentJSON) {
+            console.log(Object.values(contentJSON));
             var url          = contentJSON["url"];
             var googleVidUrl = contentJSON["googleVidUrl"];
             var youTubeTitle = contentJSON["youTubeTitle"];
@@ -64,6 +64,7 @@ function getMp3() {
             console.log("");
             console.log("Google video url is: ");
             console.log(googleVidUrl);
+        });
     });
 };
 
