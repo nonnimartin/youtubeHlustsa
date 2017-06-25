@@ -9,7 +9,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
    }
 });
 
-//Ask background script to send most recent youtube URL
+//Send most recent youtube URL to popup.js when requested
 chrome.runtime.onMessage.addListener(
     function(message, sender, sendResponse) {
         console.log("Backround script listener received message type = " + message.type);

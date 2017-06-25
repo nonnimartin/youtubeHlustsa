@@ -3,11 +3,9 @@
 var line      = "================================="
 var fs        = require('fs');
 var https     = require('https');
-var http      = require('http');
 var url       = require('url');
 var request   = require("request");
 var mongoose  = require('mongoose');
-var wait      = require('wait-for-stuff')
 var 
 Task = mongoose.model('Tasks');
 

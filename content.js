@@ -1,14 +1,18 @@
 $(document).ready(function () {
 
-    var pathname   = window.location;
-    var youtubeId  = pathname.toString().split("watch?v=")[1]
+    function checkLocation() {
+        var pathname   = window.location;
+        var youtubeId  = pathname.toString().split("watch?v=")[1]
 
-    YoutubeVideo(youtubeId, function(video){
-        mp4 = video.getSource("video/mp4", "medium");
-        localStorage.setItem("googleVidUrl", mp4.url);
-        localStorage.setItem("youTubeTitle",   document.title.replace(/\s+/g, ''))
-    });
+        YoutubeVideo(youtubeId, function(video){
+            mp4 = video.getSource("video/mp4", "medium");
+            localStorage.setItem("googleVidUrl", mp4.url);
+            localStorage.setItem("youTubeTitle",   document.title.replace(/\s+/g, ''))
+        });
+}
 
+//check for page change every few seconds and update location information
+setInterval(checkLocation, 1000);
 
     //listen for contentJSON request from popup.js
     chrome.runtime.onMessage.addListener(
