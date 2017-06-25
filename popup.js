@@ -1,15 +1,30 @@
 function downloadContent(url, fileName) {
+  console.log(url)
   chrome.downloads.download({
       url:      url,
     filename: fileName
   });
 };
 
-function httpGet(theUrl) {
+function postUrl(theUrl, fileName) {
+
+    //set local node.js server location
+
+    nodeServerUrl = "http://localhost:3000/urls/get_file/"
+
+    //write url into JSON
+
+    console.log("===========");
+    console.log("")
+    console.log("writing url data");
+    console.log("===========")
+    var urlData = {"url" : theUrl, "name" : fileName }
+    console.log(urlData["name"])
+    console.log("Data content = " + JSON.stringify(urlData))
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", theUrl, true );
-    xmlHttp.send( null );
-    return xmlHttp.responseText;
+    xmlHttp.open( "POST", nodeServerUrl, true );
+    xmlHttp.setRequestHeader('Content-type', 'application/json');
+    xmlHttp.send(JSON.stringify(urlData));
 }
 
 function getVid() {
@@ -33,38 +48,28 @@ function getVid() {
 
 function getMp3() {
 
+    //Get background script current url data here
+    chrome.extension.sendMessage({type: "getCurrentUrl"},
+        function (response) {
+            currentUrl = response.url
+            console.log(currentUrl);
+    });
+    
+    //Ask for contentJSON data from content.js
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, {type: "getVars"}, function(vars) {
-            if (typeof vars == "undefined") {
-                 if (chrome.runtime.lastError) {
-                  console.log("Could not talk to script")
-                 }
-            }
-            else {
-              var url        = vars[0];
-              var fileName   = vars[1];
-              var argsString = ""
-
-              //Get data from video url
-              var vidData  = httpGet(url);
-              var data = new ArrayBuffer(vidData);
-              var int8View = new Int8Array(data);
-              console.log(int8View.toString(8));
-              //test = FileReaderJS.setupInput(vidData, {readAsDefault: 'ArrayBuffer'});
-              
-             //  var args = '-c copy -map 0:a output_audio.mp4'
-
-             //  ffmpeg = ffmpeg_run({
-             //      arguments: args,
-             //      files: [
-             //      {
-             //        data: vidData,
-             //        name: "audio.mp4"
-             //      }
-             //     ]
-             //  });
-             
-             // console.log(ffmpeg)
+        chrome.tabs.sendMessage(tabs[0].id, {type: "getContentJSON"}, function(contentJSON) {
+            if (typeof contentJSON == "undefined") {
+                  console.log("Could not talk to content script")
+            }else {
+                //Retrieve current youtube and google video data JSON from content script
+                //contentJSON = { "url" : url, "googleVidUrl" : googleVidUrl, "youTubeTitle" : youTubeTitle }
+                var url          = contentJSON["url"];
+                var googleVidUrl = contentJSON["googleVidUrl"];
+                var youTubeTitle = contentJSON["youTubeTitle"];
+                console.log("Url is " + url + "and title is " + youTubeTitle);
+                console.log("");
+                console.log("Google video url is: ");
+                console.log(googleVidUrl);
 
             }
         })
