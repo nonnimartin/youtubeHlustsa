@@ -1,6 +1,5 @@
 $(document).ready(function () {
 
-    //buttonsDiv = $( "#watch8-secondary-actions")
     var pathname   = window.location;
     var youtubeId  = pathname.toString().split("watch?v=")[1]
 
@@ -14,8 +13,9 @@ $(document).ready(function () {
     //listen for contentJSON request from popup.js
     chrome.runtime.onMessage.addListener(
     function(message, sender, sendResponse) {
+        console.log("Content script listener received message type = " + message.type);
         switch(message.type) {
-            case "sendCurrentURL":
+            case "getContentJSON":
 
                 var url            = localStorage.getItem("upatedYoutubeUrl");
                 var googleVidUrl   = localStorage.getItem("googleVidUrl");
@@ -30,19 +30,5 @@ $(document).ready(function () {
            }
         }
     );
-
-    // chrome.runtime.sendMessage({type: "getTitle"}, function(title) {
-    //     if (typeof title == "undefined") {
-    //          if (chrome.runtime.lastError) {
-    //           console.log("Could not talk to content.js")
-    //          }
-    //     }
-    //     else {
-    //         //Retrieve current title form content script
-    //         console.log("got hur" + " and url is " + url + "and name = " + title);
-
-    //     }
-    // });
-
 });
 
