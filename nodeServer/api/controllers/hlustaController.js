@@ -6,10 +6,10 @@ var https     = require('https');
 var url       = require('url');
 var request   = require("request");
 var mongoose  = require('mongoose');
-var 
-Task = mongoose.model('Tasks');
+var ffmpeg    = require ('fluent-ffmpeg');
+var Task = mongoose.model('Tasks');
 
-function writeFile(fileName, buffer, options) {
+function writeMp4(fileName, buffer, options) {
   fs.writeFile("/tmp/" + fileName + ".mp4", buffer, options, function(err) {
       if(err) {
           return console.log(err);
@@ -18,6 +18,27 @@ function writeFile(fileName, buffer, options) {
   }); 
 }
 
+function mp4ToMp3(mp4Path) {
+    var mp3Path = mp4Path.split(".")[0] + ".mp3";
+    ffmpeg({source:mp4Path})
+        .format('mp3')
+        .on('error', function(err) {
+        console.log('An error occurred: ' + err.message);
+        })
+        .on('end', function() {
+        console.log('Processing finished !');
+        })
+        .save(mp3Path);
+        // proc = new ffmpeg({source:mp4Path})
+        // proc.setFfMpegPath('/usr/local/Cellar/ffmpeg/3.3/bin/ffmpeg')
+        // .toFormat('mp3')
+        // proc.saveToFile(mp3, (stdout, stderr)->
+        //         return console.log stderr if err?
+        //         return console.log 'done'
+        // )
+}
+
+//REST API functions
 exports.receive_url = function(req, res) {
   console.log("got here")
   var new_task  = new Task(req.body);
@@ -45,13 +66,20 @@ exports.receive_url = function(req, res) {
           //so Buffer.concat() can make us a new Buffer
           //of all of them together
           var buffer = Buffer.concat(data);
-          console.log(res)
-          //console.log(buffer.toString('utf8'));
           var options = { flag : 'w' };
+          
           console.log("Buffer size = " + buffer.byteLength);
           console.log("Writing file to /tmp/" + fileName + ".mp4");
-          //setTimeout(writeFile, 10000, fileName, buffer, options);
-          writeFile(fileName, buffer, options);
+
+          //Write file to /tmp/$filename.mp4 location
+          var mp4Path = "/tmp/" + fileName + ".mp4"
+          var mp3Path = mp4Path.split(".")[0] + ".mp3";
+          writeMp4(fileName, buffer, options);
+
+          //Convert mp4 to mp3
+          console.log("Converting mp4 at " + mp4Path + " to mp3")
+          mp4ToMp3(mp4Path);
+
       });
   });
 };
