@@ -56,14 +56,11 @@ function getMp3() {
     //Ask for contentJSON data from content.js
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {type: "getContentJSON"}, function(contentJSON) {
-            console.log(Object.values(contentJSON));
-            var url          = contentJSON["url"];
             var googleVidUrl = contentJSON["googleVidUrl"];
             var youTubeTitle = contentJSON["youTubeTitle"];
-            console.log("Url is " + url + "and title is " + youTubeTitle);
-            console.log("");
-            console.log("Google video url is: ");
-            console.log(googleVidUrl);
+            console.log("Google video URL is " + googleVidUrl + "and title is " + youTubeTitle);
+            //Send google video URL and filename to local node.js server for processing
+            postUrl(googleVidUrl, youTubeTitle);
         });
     });
 };
