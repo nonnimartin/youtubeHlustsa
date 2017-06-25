@@ -19,23 +19,27 @@ function writeMp4(fileName, buffer, options) {
 }
 
 function mp4ToMp3(mp4Path) {
-    var mp3Path = mp4Path.split(".")[0] + ".mp3";
-    ffmpeg({source:mp4Path})
-        .format('mp3')
-        .on('error', function(err) {
+  var mp3Path = mp4Path.split('.')[0] + '.mp3';
+  ffmpeg({source:mp4Path})
+      .format('mp3')
+      .on('error', function(err) {
         console.log('An error occurred: ' + err.message);
-        })
-        .on('end', function() {
-        console.log('Processing finished !');
-        })
-        .save(mp3Path);
-        // proc = new ffmpeg({source:mp4Path})
-        // proc.setFfMpegPath('/usr/local/Cellar/ffmpeg/3.3/bin/ffmpeg')
-        // .toFormat('mp3')
-        // proc.saveToFile(mp3, (stdout, stderr)->
-        //         return console.log stderr if err?
-        //         return console.log 'done'
-        // )
+      })
+      .save(mp3Path)
+      .on('end', function(stdout, stderr) {
+        console.log("");
+        console.log('Transcoding succeeded! Deleting ' + mp4Path);
+        //Delete mp4 file after conversion
+        deleteFile(mp4Path);
+        console.log('File deleted successfully.');
+      });
+}
+
+function deleteFile(filePath) {
+  fs.unlink(filePath, (err) => {
+    if (err) throw err;
+    console.log('Successfully deleted ' + filePath);
+    });
 }
 
 //REST API functions
@@ -79,6 +83,7 @@ exports.receive_url = function(req, res) {
           //Convert mp4 to mp3
           console.log("Converting mp4 at " + mp4Path + " to mp3")
           mp4ToMp3(mp4Path);
+          
 
       });
   });
