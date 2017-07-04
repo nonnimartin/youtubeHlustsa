@@ -1,13 +1,14 @@
 'use strict';
 
-var line      = "================================="
-var fs        = require('fs');
-var https     = require('https');
-var url       = require('url');
-var request   = require("request");
-var mongoose  = require('mongoose');
-var ffmpeg    = require ('fluent-ffmpeg');
-var Task = mongoose.model('Tasks');
+var line       = "================================="
+var fs         = require('fs');
+var https      = require('https');
+var url        = require('url');
+var request    = require("request");
+var mongoose   = require('mongoose');
+var ffmpeg     = require ('fluent-ffmpeg');
+var Task       = mongoose.model('Tasks');
+const serve    = require('serve');
 
 function writeMp4(fileName, buffer, options) {
   fs.writeFile("/tmp/" + fileName + ".mp4", buffer, options, function(err) {
@@ -18,12 +19,14 @@ function writeMp4(fileName, buffer, options) {
   }); 
 }
 
-function mp4ToMp3(mp4Path) {
+function mp4ToMp3(mp4Path, callback) {
   var mp3Path = mp4Path.split('.')[0] + '.mp3';
   ffmpeg({source:mp4Path})
       .format('mp3')
       .on('error', function(err) {
         console.log('An error occurred: ' + err.message);
+        //send callback error
+        callback("error");
       })
       .save(mp3Path)
       .on('end', function(stdout, stderr) {
@@ -32,7 +35,15 @@ function mp4ToMp3(mp4Path) {
         //Delete mp4 file after conversion
         deleteFile(mp4Path);
         console.log('File deleted successfully.');
+        //send callback success
+        callback("success");
       });
+}
+
+function serveFile() {
+  const server = serve(__dirname + "/../../mp3s", {
+    port: 1337
+  })
 }
 
 function deleteFile(filePath) {
@@ -40,6 +51,13 @@ function deleteFile(filePath) {
     if (err) throw err;
     console.log('Successfully deleted ' + filePath);
     });
+}
+function moveFile(fromPath, toPath) {
+  fs.rename(fromPath, toPath, function (err) {
+    if (err) throw err;
+    console.log('Move complete.');
+    console.log('Moved ' + fromPath + " to " + toPath);
+  })
 }
 
 //REST API functions
@@ -76,14 +94,18 @@ exports.receive_url = function(req, res) {
           console.log("Writing file to /tmp/" + fileName + ".mp4");
 
           //Write file to /tmp/$filename.mp4 location
-          var mp4Path = "/tmp/" + fileName + ".mp4"
-          var mp3Path = mp4Path.split(".")[0] + ".mp3";
+          var mp4Path  = "/tmp/" + fileName + ".mp4"
+          var mp3Path  = mp4Path.split(".")[0] + ".mp3";
           writeMp4(fileName, buffer, options);
 
           //Convert mp4 to mp3
           console.log("Converting mp4 at " + mp4Path + " to mp3")
-          mp4ToMp3(mp4Path);
-          
+
+           mp4ToMp3(mp4Path, function(responseVal) {
+              console.log("Response value: " + responseVal);
+              moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
+              serveFile();
+        })
 
       });
   });

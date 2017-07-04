@@ -28,6 +28,9 @@
   "dependencies": {
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
-    "mongoose": "^4.10.6"
+    "fluent-ffmpeg": "^2.1.2",
+    "mongoose": "^4.10.6",
+    "request": "^2.81.0",
+    "serve": "^6.0.1"
   }
 }
