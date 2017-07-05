@@ -7,7 +7,27 @@ var express = require('express'),
   
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/hlustaDB'); 
+var serve = require('serve');
+var fs    = require('fs');
 
+function serveStartupStatus() {
+
+    //Write current status to json file for Chrome to check
+    var statusJSON = {
+      "status" : "startup"
+    };
+
+    fs.writeFile(__dirname + "/status/status.json", JSON.stringify(statusJSON), function(err) {
+    if (err) throw err;
+    });
+//serve the status.json location
+    const server = serve(__dirname + "/status", {
+      port: 3002
+    })
+    global.statusServed = true;
+}
+
+serveStartupStatus();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

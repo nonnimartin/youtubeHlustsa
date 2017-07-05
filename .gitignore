@@ -1,3 +1,4 @@
 nodeServer/node_modules
 nodeServer/mp3s/*
 nodeServer/status/*
+nodeServer/node_modules/*
