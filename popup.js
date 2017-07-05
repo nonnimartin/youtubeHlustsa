@@ -1,3 +1,5 @@
+var currentStatus = {};
+
 function downloadContent(url, fileName) {
   console.log(url)
   chrome.downloads.download({
@@ -50,8 +52,8 @@ function getMp3() {
 
     //Get background script current url data here
     chrome.extension.sendMessage({type: "getCurrentUrl"}, function (response) {
-            var currentUrl = response.url
-            console.log(currentUrl);
+            var currentUrl = response.url;
+            currentStatus = response.statusJSON;
     });
     //Ask for contentJSON data from content.js
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {

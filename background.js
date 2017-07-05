@@ -1,3 +1,15 @@
+//Check localhost process status every half second
+setInterval(checkProcessStatus, 500);
+var processResponse = {};
+
+function checkProcessStatus() {
+
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("GET", "http://localhost:3002/status.json", false);
+   xhttp.send(null);
+   var processResponse = JSON.parse(xhttp.responseText);
+}
+
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
    //listen in background for updates to the current url, and change the url value each time if
    //url begins with prefix
@@ -17,7 +29,7 @@ chrome.runtime.onMessage.addListener(
             case "getCurrentUrl":
         
                 var currentUrl    = localStorage.getItem("currentUrl");
-                currentJSON       = {'url' : currentUrl}
+                currentJSON       = {'url' : currentUrl, 'statusJSON' : processResponse}
 
                 sendResponse(currentJSON);
                 break;
@@ -26,4 +38,3 @@ chrome.runtime.onMessage.addListener(
            }
         }
 );
-

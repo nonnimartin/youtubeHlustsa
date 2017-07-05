@@ -11,7 +11,6 @@ var Task       = mongoose.model('Tasks');
 const serve    = require('serve');
 
 var statusFile = 'status.json';
-var statusServed  = false;
 var filesServed   = false;
 
 function writeMp4(fileName, buffer, options) {
