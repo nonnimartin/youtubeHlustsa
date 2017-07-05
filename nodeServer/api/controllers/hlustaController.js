@@ -4,11 +4,15 @@ var line       = "================================="
 var fs         = require('fs');
 var https      = require('https');
 var url        = require('url');
-var request    = require("request");
+var request    = require('request');
 var mongoose   = require('mongoose');
 var ffmpeg     = require ('fluent-ffmpeg');
 var Task       = mongoose.model('Tasks');
 const serve    = require('serve');
+
+var statusFile = 'status.json';
+var statusServed  = false;
+var filesServed   = false;
 
 function writeMp4(fileName, buffer, options) {
   fs.writeFile("/tmp/" + fileName + ".mp4", buffer, options, function(err) {
@@ -41,9 +45,40 @@ function mp4ToMp3(mp4Path, callback) {
 }
 
 function serveFile() {
-  const server = serve(__dirname + "/../../mp3s", {
-    port: 1337
-  })
+
+  console.log("Files served: " + global.filesServed)
+
+  if (!global.filesServed) {
+    const server = serve(__dirname + "/../../mp3s", {
+      port: 3001
+    })
+    global.filesServed = true;
+  }
+}
+
+function serveStatus() {
+
+  console.log("Status served: " + global.statusServed);
+
+  if (!global.statusServed) {
+    const server = serve(__dirname + "/../../status", {
+      port: 3002
+    })
+    global.statusServed = true;
+  }
+}
+
+function setStatus(status, fileName) {
+
+    //Write current status to json file for Chrome to check
+    var statusJSON = {
+      "status" : status,
+      "fileName" : fileName
+    };
+
+    fs.writeFile(__dirname + "/../../status/" + statusFile, JSON.stringify(statusJSON), function(err) {
+    if (err) throw err;
+    });
 }
 
 function deleteFile(filePath) {
@@ -62,7 +97,6 @@ function moveFile(fromPath, toPath) {
 
 //REST API functions
 exports.receive_url = function(req, res) {
-  console.log("got here")
   var new_task  = new Task(req.body);
   var sent_body = req.body
   console.log(sent_body)
@@ -72,6 +106,8 @@ exports.receive_url = function(req, res) {
   console.log("Id = " + task_id)
   console.log("Setting URL: " + sent_url)
   new_task.url = sent_url
+  setStatus("processing", fileName);
+  serveStatus();
   new_task.save(function(err, task) {
     if (err)
       res.send(err);
@@ -105,6 +141,7 @@ exports.receive_url = function(req, res) {
               console.log("Response value: " + responseVal);
               moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
               serveFile();
+              setStatus("done", fileName);
         })
 
       });
