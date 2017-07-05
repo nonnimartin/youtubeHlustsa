@@ -65,8 +65,6 @@ function getMp3() {
     });
 };
 
-
-
 document.getElementById('getVid').addEventListener('click', getVid);
 document.getElementById('getMp3').addEventListener('click', getMp3);
 

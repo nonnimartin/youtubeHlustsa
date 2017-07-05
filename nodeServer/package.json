@@ -29,13 +29,8 @@
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "fluent-ffmpeg": "^2.1.2",
-<<<<<<< HEAD
-    "mongoose": "^4.10.6",
+    "mongoose": "^4.11.0",
     "request": "^2.81.0",
     "serve": "^6.0.1"
-=======
-    "mongoose": "^4.11.0",
-    "request": "^2.81.0"
->>>>>>> 9943c8a9ef8fb04d9d4ebb5c0f7379d5168211a9
   }
 }
