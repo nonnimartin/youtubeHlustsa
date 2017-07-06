@@ -11,6 +11,20 @@ function checkProcessStatus() {
   processResponse = JSON.parse(xhttp.responseText);
 }
 
+function processFileStatus() {
+  //process reponse variable works
+  var responseStatus = processResponse;
+  var status         = responseStatus.status;
+  var fileName       = responseStatus.fileName;
+  console.log(responseStatus);
+
+  if (status == 'done') {
+    chrome.downloads.download({url: 'http://localhost:3001/' + fileName + '.mp3', filename : fileName + '.mp3'});
+    return "done";
+  }
+
+}
+
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
    //listen in background for updates to the current url, and change the url value each time if
    //url begins with prefix
@@ -35,9 +49,8 @@ chrome.runtime.onMessage.addListener(
                 sendResponse(currentJSON);
                 break;
             case "processStatus":
-                console.log("Got to the process status");
-                console.log("process reponse = " + JSON.stringify(processResponse));
-                sendResponse(processResponse);
+                //setInterval(processFileStatus, 500 );
+                var processInterval = setInterval(function() {var status = processFileStatus(); if (status == "done") {clearInterval(processInterval);}}, 500);
                 break;
             default:
                 console.error("Unrecognised message: ", message);

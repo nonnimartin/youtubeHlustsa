@@ -31,7 +31,7 @@ function postUrl(theUrl, fileName) {
   
 function checkProcessStatus() {
     chrome.extension.sendMessage({type: "processStatus"}, function (statusJSON) {
-      return statusJSON;
+      console.log("Sent process status message to background");
     });
 }
 
@@ -69,8 +69,7 @@ function getMp3() {
             console.log("Google video URL is " + googleVidUrl + "and title is " + youTubeTitle);
             //Send google video URL and filename to local node.js server for processing
             postUrl(googleVidUrl, youTubeTitle);
-            console.log("about to test");
-            setInterval(checkProcessStatus, 500);
+            console.log(checkProcessStatus());
         });
     })
 };
