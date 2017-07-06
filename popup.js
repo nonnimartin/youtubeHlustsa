@@ -28,6 +28,12 @@ function postUrl(theUrl, fileName) {
     xmlHttp.setRequestHeader('Content-type', 'application/json');
     xmlHttp.send(JSON.stringify(urlData));
 }
+  
+function checkProcessStatus() {
+    chrome.extension.sendMessage({type: "processStatus"}, function (statusJSON) {
+      return statusJSON;
+    });
+}
 
 function getVid() {
 
@@ -63,8 +69,10 @@ function getMp3() {
             console.log("Google video URL is " + googleVidUrl + "and title is " + youTubeTitle);
             //Send google video URL and filename to local node.js server for processing
             postUrl(googleVidUrl, youTubeTitle);
+            console.log("about to test");
+            setInterval(checkProcessStatus, 500);
         });
-    });
+    })
 };
 
 document.getElementById('getVid').addEventListener('click', getVid);

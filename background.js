@@ -1,13 +1,14 @@
 //Check localhost process status every half second
 setInterval(checkProcessStatus, 500);
-var processResponse = {};
+
+var processResponse;
 
 function checkProcessStatus() {
 
   var xhttp = new XMLHttpRequest();
   xhttp.open("GET", "http://localhost:3002/status.json", false);
-   xhttp.send(null);
-   var processResponse = JSON.parse(xhttp.responseText);
+  xhttp.send(null);
+  processResponse = JSON.parse(xhttp.responseText);
 }
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
@@ -32,6 +33,11 @@ chrome.runtime.onMessage.addListener(
                 currentJSON       = {'url' : currentUrl, 'statusJSON' : processResponse}
 
                 sendResponse(currentJSON);
+                break;
+            case "processStatus":
+                console.log("Got to the process status");
+                console.log("process reponse = " + JSON.stringify(processResponse));
+                sendResponse(processResponse);
                 break;
             default:
                 console.error("Unrecognised message: ", message);
