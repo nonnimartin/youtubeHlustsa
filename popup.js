@@ -1,7 +1,5 @@
 var currentStatus = {};
 
-var testVar = "test"
-
 function downloadContent(url, fileName) {
   console.log(url)
   chrome.downloads.download({
@@ -17,7 +15,7 @@ function postUrl(theUrl, fileName) {
     nodeServerUrl = "http://localhost:3000/urls/get_file/"
 
     //write url into JSON
-
+    var fileName = fileName.replace(/[^a-z0-9_\-]/gi, '_').toLowerCase()
     console.log("===========");
     console.log("")
     console.log("writing url data");

@@ -14,7 +14,8 @@
     "http://localhost/*",
     "tabs",
     "downloads",
-    "webNavigation"
+    "webNavigation",
+    "cookies"
   ],
 
   "browser_action": {
