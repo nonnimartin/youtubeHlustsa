@@ -20,7 +20,12 @@ function processFileStatus() {
 
   if (status == 'done') {
     chrome.downloads.download({url: 'http://localhost:3001/' + fileName + '.mp3', filename : fileName + '.mp3'});
+    chrome.browserAction.setPopup({popup: "popup.html"});
     return "done";
+  }else if (status == 'processing') {
+    chrome.browserAction.setPopup({popup: "popupDisabledMp3.html"});
+  }else if (status == 'startup') {
+    chrome.browserAction.setPopup({popup: "popup.html"});
   }
 
 }

@@ -1,5 +1,7 @@
 var currentStatus = {};
 
+var testVar = "test"
+
 function downloadContent(url, fileName) {
   console.log(url)
   chrome.downloads.download({
@@ -55,6 +57,10 @@ function getVid() {
 };
 
 function getMp3() {
+
+    //disable getMp3 button to prevent double submission, this is handled in background for
+    //other tabs
+    document.getElementById('getMp3').disabled = true;
 
     //Get background script current url data here
     chrome.extension.sendMessage({type: "getCurrentUrl"}, function (response) {
