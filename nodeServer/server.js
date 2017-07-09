@@ -9,6 +9,14 @@ mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/hlustaDB'); 
 var serve = require('serve');
 var fs    = require('fs');
+var exec = require('child_process').exec;
+
+function puts(error, stdout, stderr) { console.log(stdout) }
+
+function closePort(port) {
+  //kill process on reservrd ports
+  exec("lsof -t -i tcp:" + port + " | xargs kill", puts);
+}
 
 function serveStartupStatus() {
 
@@ -26,6 +34,9 @@ function serveStartupStatus() {
     })
     global.statusServed = true;
 }
+
+closePort("3001");
+closePort("3002");
 
 serveStartupStatus();
 

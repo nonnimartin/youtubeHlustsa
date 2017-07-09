@@ -1,5 +1,6 @@
 $(document).ready(function () {
 
+
     function checkLocation() {
         var pathname   = window.location;
         var youtubeId  = pathname.toString().split("watch?v=")[1]
@@ -9,7 +10,7 @@ $(document).ready(function () {
             localStorage.setItem("googleVidUrl", mp4.url);
             localStorage.setItem("youTubeTitle",   document.title.replace(/\s+/g, ''))
         });
-}
+    }
 
 //check for page change every few seconds and update location information
 setInterval(checkLocation, 1000);
@@ -23,7 +24,9 @@ setInterval(checkLocation, 1000);
                 var googleVidUrl   = localStorage.getItem("googleVidUrl");
                 var youTubeTitle   = localStorage.getItem("youTubeTitle");
 
-                contentJSON = { "googleVidUrl" : googleVidUrl, "youTubeTitle" : youTubeTitle }
+                contentJSON = { "googleVidUrl" : googleVidUrl,
+                                "youTubeTitle" : youTubeTitle
+                }
 
                 sendResponse(contentJSON);
                 break;

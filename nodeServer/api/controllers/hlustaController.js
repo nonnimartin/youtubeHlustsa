@@ -101,8 +101,10 @@ exports.receive_url = function(req, res) {
   console.log(sent_body)
   var sent_url = sent_body['url']
   var fileName = sent_body['name']
+  var cookies  = sent_body['cookies']
   var task_id  = new_task.id
   console.log("Id = " + task_id)
+  console.log("Cookies: " + cookies)
   console.log("Setting URL: " + sent_url)
   new_task.url = sent_url
   setStatus("processing", fileName);
