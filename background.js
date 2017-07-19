@@ -11,12 +11,6 @@ function checkProcessStatus() {
   processResponse = JSON.parse(xhttp.responseText);
 }
 
-function getAllCookies(callback) {
-    chrome.cookies.getAll({domain: "youtube.com"}, function(cookies) {
-      callback(cookies);
-    });
-}
-
 function processFileStatus() {
   //process reponse variable works
   var responseStatus = processResponse;
@@ -41,14 +35,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
    //url begins with prefix
    var prefix  = "https://www.youtube.com/watch?v=";
    var url     = tab.url;
-   getAllCookies(function(cookies) {
-      var cookiesArray = [];
-      for (i = 0; i < cookies.length; i++) {
-        cookiesArray.push(JSON.stringify(cookies[i]));
-      }
-      console.log(cookiesArray);
-      localStorage.setItem("cookies", cookiesArray);
-   });
 
    if (url.startsWith(prefix)) {
        currentTabUrl = url;
@@ -64,11 +50,10 @@ chrome.runtime.onMessage.addListener(
             case "getCurrentUrl":
         
                 var currentUrl    = localStorage.getItem("currentUrl");
-                var cookies       = localStorage.getItem("cookies");
+
                 currentJSON       = {
                   'url' : currentUrl, 
-                  'statusJSON' : processResponse,
-                  'cookies'    : cookies
+                  'statusJSON' : processResponse
                 }
 
                 sendResponse(currentJSON);

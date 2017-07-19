@@ -9,6 +9,7 @@ $(document).ready(function () {
             mp4 = video.getSource("video/mp4", "medium");
             localStorage.setItem("googleVidUrl", mp4.url);
             localStorage.setItem("youTubeTitle",   document.title.replace(/\s+/g, ''))
+            localStorage.setItem("youTubeUrl", pathname);
         });
     }
 
@@ -23,9 +24,11 @@ setInterval(checkLocation, 1000);
             case "getContentJSON":
                 var googleVidUrl   = localStorage.getItem("googleVidUrl");
                 var youTubeTitle   = localStorage.getItem("youTubeTitle");
+                var youTubeUrl     = localStorage.getItem("youTubeUrl");
 
                 contentJSON = { "googleVidUrl" : googleVidUrl,
-                                "youTubeTitle" : youTubeTitle
+                                "youTubeTitle" : youTubeTitle,
+                                "youTubeUrl"   : youTubeUrl
                 }
 
                 sendResponse(contentJSON);

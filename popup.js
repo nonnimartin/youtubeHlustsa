@@ -8,19 +8,13 @@ function downloadContent(url, fileName) {
   });
 };
 
-function postUrl(theUrl, fileName, cookies) {
+function postUrl(theUrl, fileName, youTubeUrl) {
 
     //set local node.js server location
     nodeServerUrl = "http://localhost:3000/urls/get_file/"
-
     //write url into JSON
     var fileName = fileName.replace(/[^a-z0-9_\-]/gi, '_').toLowerCase();
-    console.log("===========");
-    console.log("popup cookies: " + cookies);
-    console.log("writing url data");
-    console.log("===========");
-    var urlData = {"url" : theUrl, "name" : fileName, "cookies" : cookies}
-    console.log("Data content = " + JSON.stringify(urlData))
+    var urlData = {"url" : theUrl, "name" : fileName, "youTubeUrl" : youTubeUrl}
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "POST", nodeServerUrl, true );
     xmlHttp.setRequestHeader('Content-type', 'application/json');
@@ -62,16 +56,16 @@ function getMp3() {
     chrome.extension.sendMessage({type: "getCurrentUrl"}, function (response) {
             var currentUrl = response.url;
             currentStatus  = response.statusJSON;
-            cookies        = response.cookies;
     });
     //Ask for contentJSON data from content.js
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {type: "getContentJSON"}, function(contentJSON) {
             var googleVidUrl = contentJSON["googleVidUrl"];
             var youTubeTitle = contentJSON["youTubeTitle"];
+            var youTubeUrl   = contentJSON["youTubeUrl"];
             console.log("Google video URL is " + googleVidUrl + "and title is " + youTubeTitle);
             //Send google video URL and filename to local node.js server for processing
-            postUrl(googleVidUrl, youTubeTitle, cookies);
+            postUrl(googleVidUrl, youTubeTitle, youTubeUrl);
             console.log(checkProcessStatus());
         });
     })

@@ -9,6 +9,8 @@ var mongoose   = require('mongoose');
 var ffmpeg     = require ('fluent-ffmpeg');
 var Task       = mongoose.model('Tasks');
 const serve    = require('serve');
+//learning stand-in for finding why private account requests are denied
+const ytdl     = require('ytdl-core');
 
 var statusFile = 'status.json';
 var filesServed   = false;
@@ -94,6 +96,44 @@ function moveFile(fromPath, toPath) {
   })
 }
 
+function getInfo(link, options, callback) {
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  } else if (!options) {
+    options = {};
+  }
+  if (!callback) {
+    return new Promise(function(resolve, reject) {
+      getInfo(link, options, function(err, info) {
+        if (err) return reject(err);
+        resolve(info);
+      });
+    });
+  }
+}
+
+function downloadVids(vidUrl, mp4Path, callback) {
+  //download video information and hold in variable
+  var vidStream = ytdl(vidUrl, { filter: function(format) { return format.container === 'mp4'; } });
+  // function writeSteamToFile() {
+  //   vidStream.pipe(fs.createWriteStream(mp4Path));
+  // }
+
+  vidStream.pipe(fs.createWriteStream(mp4Path));
+
+  vidStream.on('end', () => {
+    try {
+      callback();
+      
+    } catch (er) {
+      // uh oh! bad json!
+      console.log("bad something")
+    }
+  })
+
+}
+
 //REST API functions
 exports.receive_url = function(req, res) {
   var new_task  = new Task(req.body);
@@ -101,11 +141,8 @@ exports.receive_url = function(req, res) {
   console.log(sent_body)
   var sent_url = sent_body['url']
   var fileName = sent_body['name']
-  var cookies  = sent_body['cookies']
+  var youTubeUrl = sent_body['youTubeUrl']
   var task_id  = new_task.id
-  console.log("Id = " + task_id)
-  console.log("Cookies: " + cookies)
-  console.log("Setting URL: " + sent_url)
   new_task.url = sent_url
   setStatus("processing", fileName);
   serveStatus();
@@ -115,15 +152,16 @@ exports.receive_url = function(req, res) {
     res.json(task);
   });
 
-  https.get(url.parse(sent_url), function(res) {
+  var parsedUrl = url.parse(sent_url);
+
+  https.get(parsedUrl, function(res) {
+      
       var data = [];
 
       res.on('data', function(chunk) {
           data.push(chunk);
       }).on('end', function() {
-          //at this point data is an array of Buffers
-          //so Buffer.concat() can make us a new Buffer
-          //of all of them together
+
           var buffer = Buffer.concat(data);
           var options = { flag : 'w' };
           
@@ -133,19 +171,17 @@ exports.receive_url = function(req, res) {
           //Write file to /tmp/$filename.mp4 location
           var mp4Path  = "/tmp/" + fileName + ".mp4"
           var mp3Path  = mp4Path.split(".")[0] + ".mp3";
-          writeMp4(fileName, buffer, options);
 
-          //Convert mp4 to mp3
-          console.log("Converting mp4 at " + mp4Path + " to mp3")
-
-           mp4ToMp3(mp4Path, function(responseVal) {
+          downloadVids(youTubeUrl, mp4Path, function(returnValue) {
+            console.log(returnValue);
+            mp4ToMp3(mp4Path, function(responseVal) {
               console.log("Response value: " + responseVal);
               moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
               serveFile();
               setStatus("done", fileName);
         })
-
-      });
+      })
+    });
   });
 };
 
