@@ -18,6 +18,18 @@ function closePort(port) {
   exec("lsof -t -i tcp:" + port + " | xargs kill", puts);
 }
 
+function serveFiles() {
+
+  console.log("Files served: " + global.filesServed)
+
+  if (!global.filesServed) {
+    const server = serve(__dirname + "/mp3s", {
+      port: 3001
+    })
+    global.filesServed = true;
+  }
+}
+
 function serveStartupStatus() {
 
     //Write current status to json file for Chrome to check
@@ -39,6 +51,7 @@ closePort("3001");
 closePort("3002");
 
 serveStartupStatus();
+serveFiles();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

@@ -45,18 +45,6 @@ function mp4ToMp3(mp4Path, callback) {
       });
 }
 
-function serveFile() {
-
-  console.log("Files served: " + global.filesServed)
-
-  if (!global.filesServed) {
-    const server = serve(__dirname + "/../../mp3s", {
-      port: 3001
-    })
-    global.filesServed = true;
-  }
-}
-
 function serveStatus() {
 
   console.log("Status served: " + global.statusServed);
@@ -177,12 +165,28 @@ exports.receive_url = function(req, res) {
             mp4ToMp3(mp4Path, function(responseVal) {
               console.log("Response value: " + responseVal);
               moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
-              serveFile();
               setStatus("done", fileName);
         })
       })
     });
   });
+};
+
+
+exports.clear_backups = function(req, res) {
+
+  var mp3sDir = __dirname + "/../../mp3s/";
+
+  fs.readdir(mp3sDir, function (err, files) {
+      if (err) {
+          throw err;
+      }else {
+        for (var i in files) {
+          deleteFile(mp3sDir + files[i]);
+        }
+      }
+  });
+
 };
 
 exports.get_record = function(req, res) {

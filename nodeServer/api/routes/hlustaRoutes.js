@@ -10,6 +10,9 @@ module.exports = function(app) {
   app.route('/urls/get_record/:id')
       .get(hlusta.get_record);
 
+  app.route('/urls/clear_backups')
+      .get(hlusta.clear_backups);
+
   app.route('/urls/get_file/')
       .post(hlusta.receive_url);
 };

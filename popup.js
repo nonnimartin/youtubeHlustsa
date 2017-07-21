@@ -8,6 +8,14 @@ function downloadContent(url, fileName) {
   });
 };
 
+function clearBackup() {
+  //set local node.js server api
+  var clearBackupUrl = "http://localhost:3000/urls/clearBackups/"
+
+  xmlHttp.open( "GET", clearBackupUrl, true);
+  xmlHttp.send(null);
+};
+
 function postUrl(theUrl, fileName, youTubeUrl) {
 
     //set local node.js server location
@@ -73,4 +81,5 @@ function getMp3() {
 
 document.getElementById('getVid').addEventListener('click', getVid);
 document.getElementById('getMp3').addEventListener('click', getMp3);
+document.getElementById('clearBackup').addEventListener('click', clearBackup);
 
