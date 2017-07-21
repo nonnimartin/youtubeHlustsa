@@ -45,8 +45,11 @@ function getVid() {
                  }
             }
             else {
-              var url      = vars[0];
-              var fileName = vars[1];
+              console.log("vars = " + Object.keys(vars));
+              var url      = vars["url"];
+              var fileName = vars["title"];
+
+              console.log("url = " + url);
 
               downloadContent(url, fileName + '.mp4');
             }

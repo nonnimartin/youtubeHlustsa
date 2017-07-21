@@ -59,7 +59,6 @@ chrome.runtime.onMessage.addListener(
                 sendResponse(currentJSON);
                 break;
             case "processStatus":
-                //setInterval(processFileStatus, 500 );
                 var processInterval = setInterval(function() {var status = processFileStatus(); if (status == "done") {clearInterval(processInterval);}}, 500);
                 break;
             default:

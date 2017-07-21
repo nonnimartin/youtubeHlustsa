@@ -33,6 +33,17 @@ setInterval(checkLocation, 1000);
 
                 sendResponse(contentJSON);
                 break;
+            case "getVars":
+                //get variables for video file location
+                var currentUrl    = localStorage.getItem("youTubeUrl");
+                var currentTitle  = localStorage.getItem("youTubeTitle");
+
+                currentJSON       = {
+                  'url'   : currentUrl,
+                  'title' : currentTitle
+                }
+                sendResponse(currentJSON);
+                break;
             default:
                 console.error("Unrecognised message: ", message);
            }
