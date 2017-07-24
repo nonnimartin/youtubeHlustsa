@@ -10,8 +10,8 @@ function downloadContent(url, fileName) {
 
 function clearBackup() {
   //set local node.js server api
-  var clearBackupUrl = "http://localhost:3000/urls/clearBackups/"
-
+  var clearBackupUrl = "http://localhost:3000/urls/clear_backups/"
+  var xmlHttp = new XMLHttpRequest();
   xmlHttp.open( "GET", clearBackupUrl, true);
   xmlHttp.send(null);
 };
@@ -47,7 +47,7 @@ function getVid() {
             else {
               console.log("vars = " + Object.keys(vars));
               var url      = vars["url"];
-              var fileName = vars["title"];
+              var fileName = vars["title"]; 
 
               console.log("url = " + url);
 
