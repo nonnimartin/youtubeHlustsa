@@ -130,6 +130,7 @@ exports.receive_url = function(req, res) {
   var sent_url = sent_body['url']
   var fileName = sent_body['name']
   var youTubeUrl = sent_body['youTubeUrl']
+  console.log("Youtube url = " + youTubeUrl);
   var task_id  = new_task.id
   new_task.url = sent_url
   setStatus("processing", fileName);

@@ -11,7 +11,7 @@ $(document).ready(function () {
             console.log("YoutubeId in Content is = " + youtubeId);
             console.log("Window location = " + pathname);
             localStorage.setItem("youTubeTitle",   document.title.replace(/\s+/g, ''))
-            //localStorage.setItem("youTubeUrl", pathname);
+            localStorage.setItem("youTubeUrl", pathname);
         });
     }
 
