@@ -16,7 +16,7 @@ $(document).ready(function () {
     }
 
 //check for page change every few seconds and update location information
-setInterval(checkLocation, 1000);
+setInterval(checkLocation, 300);
 
     //listen for contentJSON request from popup.js
     chrome.runtime.onMessage.addListener(

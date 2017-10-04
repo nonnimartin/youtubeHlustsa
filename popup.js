@@ -27,6 +27,7 @@ function postUrl(theUrl, fileName, youTubeUrl) {
     xmlHttp.open( "POST", nodeServerUrl, true );
     xmlHttp.setRequestHeader('Content-type', 'application/json');
     xmlHttp.send(JSON.stringify(urlData));
+    console.log(JSON.stringify(urlData));
 }
   
 function checkProcessStatus() {
@@ -74,6 +75,7 @@ function getMp3() {
             var googleVidUrl = contentJSON["googleVidUrl"];
             var youTubeTitle = contentJSON["youTubeTitle"];
             var youTubeUrl   = contentJSON["youTubeUrl"];
+            console.log("youtubeUrl = " + youTubeUrl);
             console.log("Google video URL is " + googleVidUrl + "and title is " + youTubeTitle);
             //Send google video URL and filename to local node.js server for processing
             postUrl(googleVidUrl, youTubeTitle, youTubeUrl);

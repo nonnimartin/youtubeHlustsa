@@ -12,8 +12,11 @@ const serve    = require('serve');
 //learning stand-in for finding why private account requests are denied
 const ytdl     = require('ytdl-core');
 
-var statusFile = 'status.json';
-var filesServed   = false;
+var statusFile         = 'status.json';
+var filesServed        = false;
+
+var reqsQueueArray    = [];
+var processing        = false;
 
 function writeMp4(fileName, buffer, options) {
   fs.writeFile("/tmp/" + fileName + ".mp4", buffer, options, function(err) {
@@ -122,55 +125,91 @@ function downloadVids(vidUrl, mp4Path, callback) {
 
 }
 
+function queueRequests(req, res) {
+
+  var currentReqArray = {
+    'req' : req,
+    'res' : res
+  }
+
+  reqsQueueArray.push(currentReqArray);
+
+}
+
+function processRequests() {
+
+
+  while (reqsQueueArray.length > 0 && !processing) {
+
+    processing     = true;
+
+    var currentReq = reqsQueueArray[0];
+
+    var req        = currentReq['req'];
+    var res        = currentReq['res'];
+    
+
+    var new_task  = new Task(req.body);
+    var sent_body = req.body
+    console.log(sent_body)
+    var sent_url = sent_body['url']
+    var fileName = sent_body['name']
+    var youTubeUrl = sent_body['youTubeUrl']
+    console.log("Youtube url = " + youTubeUrl);
+    var task_id  = new_task.id
+    new_task.url = sent_url
+    setStatus("processing", fileName);
+    serveStatus();
+    new_task.save(function(err, task) {
+      if (err)
+        res.send(err);
+      res.json(task);
+    });
+
+    var parsedUrl = url.parse(sent_url);
+
+    https.get(parsedUrl, function(res) {
+        
+        var data = [];
+
+        res.on('data', function(chunk) {
+            data.push(chunk);
+        }).on('end', function() {
+
+            var buffer = Buffer.concat(data);
+            var options = { flag : 'w' };
+            
+            console.log("Buffer size = " + buffer.byteLength);
+            console.log("Writing file to /tmp/" + fileName + ".mp4");
+
+            //Write file to /tmp/$filename.mp4 location
+            var mp4Path  = "/tmp/" + fileName + ".mp4"
+            var mp3Path  = mp4Path.split(".")[0] + ".mp3";
+
+            downloadVids(youTubeUrl, mp4Path, function(returnValue) {
+              console.log(returnValue);
+              mp4ToMp3(mp4Path, function(responseVal) {
+                console.log("Response value: " + responseVal);
+                moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
+                setStatus("done", fileName);
+          })
+        })
+      });
+    });
+   reqsQueueArray.shift();
+   processing = false;
+  }
+}
+
 //REST API functions
 exports.receive_url = function(req, res) {
-  var new_task  = new Task(req.body);
-  var sent_body = req.body
-  console.log(sent_body)
-  var sent_url = sent_body['url']
-  var fileName = sent_body['name']
-  var youTubeUrl = sent_body['youTubeUrl']
-  console.log("Youtube url = " + youTubeUrl);
-  var task_id  = new_task.id
-  new_task.url = sent_url
-  setStatus("processing", fileName);
-  serveStatus();
-  new_task.save(function(err, task) {
-    if (err)
-      res.send(err);
-    res.json(task);
-  });
 
-  var parsedUrl = url.parse(sent_url);
+  queueRequests(req, res);
+  
+  if (!processing && reqsQueueArray.length != 0) {
+  setInterval(processRequests, 3000);
+  }
 
-  https.get(parsedUrl, function(res) {
-      
-      var data = [];
-
-      res.on('data', function(chunk) {
-          data.push(chunk);
-      }).on('end', function() {
-
-          var buffer = Buffer.concat(data);
-          var options = { flag : 'w' };
-          
-          console.log("Buffer size = " + buffer.byteLength);
-          console.log("Writing file to /tmp/" + fileName + ".mp4");
-
-          //Write file to /tmp/$filename.mp4 location
-          var mp4Path  = "/tmp/" + fileName + ".mp4"
-          var mp3Path  = mp4Path.split(".")[0] + ".mp3";
-
-          downloadVids(youTubeUrl, mp4Path, function(returnValue) {
-            console.log(returnValue);
-            mp4ToMp3(mp4Path, function(responseVal) {
-              console.log("Response value: " + responseVal);
-              moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
-              setStatus("done", fileName);
-        })
-      })
-    });
-  });
 };
 
 
@@ -189,6 +228,10 @@ exports.clear_backups = function(req, res) {
   });
 
 };
+
+exports.ready_status = function(req, res) {
+  setStatus('ready', '');
+}
 
 exports.get_record = function(req, res) {
   

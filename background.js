@@ -21,6 +21,9 @@ function processFileStatus() {
   if (status == 'done') {
     chrome.downloads.download({url: 'http://localhost:3001/' + fileName + '.mp3', filename : fileName + '.mp3'});
     chrome.browserAction.setPopup({popup: "popup.html"});
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "http://localhost:3000/urls/ready_status", true);
+    xhttp.send(null);
     return "done";
   }else if (status == 'processing') {
     chrome.browserAction.setPopup({popup: "popupDisabledMp3.html"});
