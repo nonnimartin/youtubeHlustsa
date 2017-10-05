@@ -10,7 +10,7 @@ function downloadContent(url, fileName) {
 
 function clearBackup() {
   //set local node.js server api
-  var clearBackupUrl = "http://localhost:3000/urls/clear_backups/"
+  var clearBackupUrl = "http://ec2-34-212-12-236.us-west-2.compute.amazonaws.com:3000/urls/clear_backups/"
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.open( "GET", clearBackupUrl, true);
   xmlHttp.send(null);
@@ -19,7 +19,7 @@ function clearBackup() {
 function postUrl(theUrl, fileName, youTubeUrl) {
 
     //set local node.js server location
-    nodeServerUrl = "http://localhost:3000/urls/get_file/"
+    nodeServerUrl = "http://ec2-34-212-12-236.us-west-2.compute.amazonaws.com:3000/urls/get_file/"
     //write url into JSON
     var fileName = fileName.replace(/[^a-z0-9_\-]/gi, '_').toLowerCase();
     var urlData = {"url" : theUrl, "name" : fileName, "youTubeUrl" : youTubeUrl}
