@@ -37,7 +37,7 @@ setInterval(checkLocation, 300);
                 break;
             case "getVars":
                 //get variables for video file location
-                var currentUrl    = localStorage.getItem("currentUrl");
+                var currentUrl    = localStorage.getItem("googleVidUrl");
                 var currentTitle  = localStorage.getItem("youTubeTitle");
 
                 currentJSON       = {

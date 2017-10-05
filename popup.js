@@ -1,7 +1,7 @@
 var currentStatus = {};
 
 function downloadContent(url, fileName) {
-  console.log(url)
+  console.log('filename = ' + fileName);
   chrome.downloads.download({
       url:      url,
     filename: fileName
@@ -51,7 +51,8 @@ function getVid() {
               var fileName = vars["title"]; 
 
               console.log("url = " + url);
-
+              console.log("title = " + fileName);
+              var fileName = fileName.replace(/[^a-z0-9_\-]/gi, '_').toLowerCase();
               downloadContent(url, fileName + '.mp4');
             }
         })
