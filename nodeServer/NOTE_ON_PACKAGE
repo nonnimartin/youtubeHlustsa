@@ -1,0 +1,2 @@
+removed serve bc dependency update breaks service startup
+but update to node-ytdl-core to 0.29.0 fixes issues with youtube URL
