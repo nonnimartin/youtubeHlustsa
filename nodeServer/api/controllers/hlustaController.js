@@ -107,9 +107,6 @@ function getInfo(link, options, callback) {
 function downloadVids(vidUrl, mp4Path, callback) {
   //download video information and hold in variable
   var vidStream = ytdl(vidUrl, { filter: function(format) { return format.container === 'mp4'; } });
-  // function writeSteamToFile() {
-  //   vidStream.pipe(fs.createWriteStream(mp4Path));
-  // }
 
   vidStream.pipe(fs.createWriteStream(mp4Path));
 
@@ -201,6 +198,66 @@ function processRequests() {
   }
 }
 
+function processVidRequests() {
+
+
+  while (reqsQueueArray.length > 0 && !processing) {
+
+    processing     = true;
+
+    var currentReq = reqsQueueArray[0];
+
+    var req        = currentReq['req'];
+    var res        = currentReq['res'];
+    
+
+    var new_task  = new Task(req.body);
+    var sent_body = req.body
+    console.log(sent_body)
+    var sent_url = sent_body['url']
+    var fileName = sent_body['name']
+    var youTubeUrl = sent_body['youTubeUrl']
+    console.log("Youtube url = " + youTubeUrl);
+    var task_id  = new_task.id
+    new_task.url = sent_url
+    setStatus("processing", fileName);
+    serveStatus();
+    new_task.save(function(err, task) {
+      if (err)
+        res.send(err);
+      res.json(task);
+    });
+
+    var parsedUrl = url.parse(sent_url);
+
+    https.get(parsedUrl, function(res) {
+        
+        var data = [];
+
+        res.on('data', function(chunk) {
+            data.push(chunk);
+        }).on('end', function() {
+
+            var buffer = Buffer.concat(data);
+            var options = { flag : 'w' };
+            
+            console.log("Buffer size = " + buffer.byteLength);
+            console.log("Writing file to /tmp/" + fileName + ".mp4");
+
+            //Write file to /tmp/$filename.mp4 location
+            var mp4Path  = "/tmp/" + fileName + ".mp4"
+
+            downloadVids(youTubeUrl, mp4Path, function(returnValue) {
+              console.log(returnValue);
+              moveFile(mp3Path, __dirname + "/../../vids/" + fileName + ".mp4");
+        })
+      });
+    });
+   reqsQueueArray.shift();
+   processing = false;
+  }
+}
+
 //REST API functions
 exports.receive_url = function(req, res) {
 
@@ -208,6 +265,16 @@ exports.receive_url = function(req, res) {
   
   if (!processing && reqsQueueArray.length != 0) {
   setInterval(processRequests, 3000);
+  }
+
+};
+
+exports.receive_vid_url = function(req, res) {
+
+  queueRequests(req, res);
+  
+  if (!processing && reqsQueueArray.length != 0) {
+  setInterval(processVidRequests, 3000);
   }
 
 };

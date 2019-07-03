@@ -16,6 +16,9 @@ module.exports = function(app) {
   app.route('/urls/get_file/')
       .post(hlusta.receive_url);
 
+  app.route('/urls/get_vid/')
+    .post(hlusta.receive_vid_url);
+
   app.route('/urls/ready_status/')
       .get(hlusta.ready_status);
 };
