@@ -114,7 +114,7 @@ function downloadVids(vidUrl, mp4Path, callback) {
     try {
       callback();
       
-    } catch (er) {
+    } catch (err) {
       console.log("bad thing = " + err.toString())
     }
   })
