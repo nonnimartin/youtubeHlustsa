@@ -18,8 +18,8 @@ var filesServed        = false;
 var reqsQueueArray    = [];
 var processing        = false;
 
-function writeMp4(fileName, buffer, options) {
-  fs.writeFile("/tmp/" + fileName + ".mp4", buffer, options, function(err) {
+function writeMp4(filePath, buffer, options) {
+  fs.writeFile(filePath, buffer, options, function(err) {
       if(err) {
           return console.log(err);
       }
@@ -240,10 +240,9 @@ function processVidRequests() {
             var buffer = Buffer.concat(data);
             var options = { flag : 'w' };
             
-            console.log("Buffer size = " + buffer.byteLength);
-            console.log("Writing file to /tmp/" + fileName + ".mp4");
+            console.log("Buffer size = " + buffer.byteLength);;
 
-            downloadVids(youTubeUrl, "../../vids/" + fileName, function(returnValue) {
+            downloadVids(youTubeUrl, "../../vids/" + fileName + '.mp4', function(returnValue) {
               console.log('this is the download return value ' + returnValue.toString());
               setStatus("done", fileName);
         })
