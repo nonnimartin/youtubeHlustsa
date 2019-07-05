@@ -107,7 +107,7 @@ function getInfo(link, options, callback) {
 function downloadVids(vidUrl, mp4Path, callback) {
 
   console.log('vid url = ' + vidUrl);
-  console.log('vid mp4path = ' + mp4path);
+  console.log('vid mp4path = ' + mp4Path);
 
   //download video information and hold in variable
   var vidStream = ytdl(vidUrl, { filter: function(format) { return format.container === 'mp4'; } });
