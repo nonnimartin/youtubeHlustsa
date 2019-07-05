@@ -1,35 +1,22 @@
 //Check localhost process status every half second
 setInterval(checkProcessStatus, 500);
 
-//import filereader
-var fs = require('fs'),
-    path = require('path'),    
-    filePath = path.join(__dirname, 'config.json');
+config = '{"server":"ec2-34-212-12-236.us-west-2.compute.amazonaws.com", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000"}';
 
 //read properties from file
-var server;
-var statusJsonPort;
-var downloadPort;
-var readyStatusPort;
+configData = JSON.parse(config);
 
-fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
-    var configData = JSON.parse(data);
-    if (!err) {
-      server          = configData.server;
-      statusJsonPort  = configData.statusJsonPort;
-      downloadPort    = configData.downloadPort;
-      readyStatusPort = configData.readyStatusPort;
-    } else {
-        console.log(err);
-    }
-});
+server          = configData.server;
+statusJsonPort  = configData.statusJsonPort;
+downloadPort    = configData.downloadPort;
+readyStatusPort = configData.readyStatusPort;
 
 var processResponse;
 
 function checkProcessStatus() {
 
   var xhttp = new XMLHttpRequest();
-  xhttp.open("GET", "http://" + server + ":" + statusJsonPort + "/status.json", false);
+  xhttp.open("GET", 'http://' + server + ':' + statusJsonPort + '/status.json', false);
   xhttp.send(null);
   processResponse = JSON.parse(xhttp.responseText);
 }

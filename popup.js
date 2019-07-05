@@ -1,39 +1,14 @@
 var currentStatus = {};
 
-//import filereader
-var fs = require('fs'),
-    path = require('path'),    
-    filePath = path.join(__dirname, 'config.json');
+config = '{"server":"ec2-34-212-12-236.us-west-2.compute.amazonaws.com", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000"}';
 
 //read properties from file
-var server;
-var statusJsonPort;
-var downloadPort;
-var readyStatusPort;
+configData = JSON.parse(config);
 
-fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
-    var configData = JSON.parse(data);
-    if (!err) {
-      server          = configData.server;
-      statusJsonPort  = configData.statusJsonPort;
-      downloadPort    = configData.downloadPort;
-      readyStatusPort = configData.readyStatusPort;
-    } else {
-        console.log(err);
-    }
-});
-
-//read properties from file
-fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
-    if (!err) {
-        console.log('received data: ' + data);
-        response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(data);
-        response.end();
-    } else {
-        console.log(err);
-    }
-});
+server          = configData.server;
+statusJsonPort  = configData.statusJsonPort;
+downloadPort    = configData.downloadPort;
+readyStatusPort = configData.readyStatusPort;
 
 function clearBackup() {
   //set local node.js server api
@@ -47,10 +22,12 @@ function postUrl(theUrl, fileName, youTubeUrl, isVideo) {
     
     var nodeServerUrl
     //set local node.js server location
-    if (isVideo):
+    if (isVideo){
       nodeServerUrl = "http://" + server + ":" + readyStatusPort + "/urls/get_vid/";
-    else:
+    }
+    else{
       nodeServerUrl = "http://" + server + ":" + readyStatusPort + "/urls/get_file/";
+    }
     //write url into JSON
     var fileName = fileName.replace(/[^a-z0-9_\-]/gi, '_').toLowerCase();
     var urlData = {"url" : theUrl, "name" : fileName, "youTubeUrl" : youTubeUrl}
