@@ -1,20 +1,20 @@
 $(document).ready(function () {
 
 
-    function checkLocation() {
-        var pathname   = window.location;
-        var youtubeId  = pathname.toString().split("watch?v=")[1]
+function checkLocation() {
+    var pathname   = window.location;
+    var youtubeId  = pathname.toString().split("watch?v=")[1]
 
-        YoutubeVideo(youtubeId, function(video){
-            mp4 = video.getSource("video/mp4", "medium");
-            localStorage.setItem("googleVidUrl", mp4.url);
-            //console.log("YoutubeId in Content is = " + youtubeId);
-            //console.log("Window location = " + pathname);
-            //console.log("mp4 value = " + mp4);
-            localStorage.setItem("youTubeTitle",   document.title.replace(/\s+/g, ''))
-            localStorage.setItem("youTubeUrl", pathname);
-        });
-    }
+    YoutubeVideo(youtubeId, function(video){
+        mp4 = video.getSource("video/mp4", "medium");
+        localStorage.setItem("googleVidUrl", mp4.url);
+        //console.log("YoutubeId in Content is = " + youtubeId);
+        //console.log("Window location = " + pathname);
+        //console.log("mp4 value = " + mp4);
+        localStorage.setItem("youTubeTitle",   document.title.replace(/\s+/g, ''))
+        localStorage.setItem("youTubeUrl", pathname);
+    });
+}
 
 //check for page change every few seconds and update location information
 setInterval(checkLocation, 300);

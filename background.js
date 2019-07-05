@@ -1,12 +1,35 @@
 //Check localhost process status every half second
 setInterval(checkProcessStatus, 500);
 
+//import filereader
+var fs = require('fs'),
+    path = require('path'),    
+    filePath = path.join(__dirname, 'config.json');
+
+//read properties from file
+var server;
+var statusJsonPort;
+var downloadPort;
+var readyStatusPort;
+
+fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
+    var configData = JSON.parse(data);
+    if (!err) {
+      server          = configData.server;
+      statusJsonPort  = configData.statusJsonPort;
+      downloadPort    = configData.downloadPort;
+      readyStatusPort = configData.readyStatusPort;
+    } else {
+        console.log(err);
+    }
+});
+
 var processResponse;
 
 function checkProcessStatus() {
 
   var xhttp = new XMLHttpRequest();
-  xhttp.open("GET", "http://ec2-34-212-12-236.us-west-2.compute.amazonaws.com:3002/status.json", false);
+  xhttp.open("GET", "http://" + server + ":" + statusJsonPort + "/status.json", false);
   xhttp.send(null);
   processResponse = JSON.parse(xhttp.responseText);
 }
@@ -19,10 +42,10 @@ function processFileStatus() {
   console.log(responseStatus);
 
   if (status == 'done') {
-    chrome.downloads.download({url: 'http://ec2-34-212-12-236.us-west-2.compute.amazonaws.com:3001/' + fileName + '.mp3', filename : fileName + '.mp3'});
+    chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
     chrome.browserAction.setPopup({popup: "popup.html"});
     var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "http://ec2-34-212-12-236.us-west-2.compute.amazonaws.com:3000/urls/ready_status", true);
+    xhttp.open("GET", "http://" + server + ":" + readyStatusPort + "/urls/ready_status", true);
     xhttp.send(null);
     return "done";
   }else if (status == 'processing') {
