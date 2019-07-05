@@ -272,8 +272,6 @@ exports.receive_url = function(req, res) {
 exports.receive_vid_url = function(req, res) {
 
   queueRequests(req, res);
-
-  console.log('this vid url = ' + JSON.stringify(req));
   
   if (!processing && reqsQueueArray.length != 0) {
   setInterval(processVidRequests, 3000);
