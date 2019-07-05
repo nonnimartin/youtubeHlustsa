@@ -243,12 +243,9 @@ function processVidRequests() {
             console.log("Buffer size = " + buffer.byteLength);
             console.log("Writing file to /tmp/" + fileName + ".mp4");
 
-            //Write file to /tmp/$filename.mp4 location
-            var mp4Path  = "/tmp/" + fileName + ".mp4"
-
-            downloadVids(youTubeUrl, mp4Path, function(returnValue) {
+            downloadVids(youTubeUrl, "../../vids/" + fileName, function(returnValue) {
               console.log('this is the download return value ' + returnValue.toString());
-              moveFile(mp4Path, __dirname + "/../../vids/" + fileName + ".mp4");
+              setStatus("done", fileName);
         })
       });
     });
