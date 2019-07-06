@@ -18,6 +18,7 @@ function checkProcessStatus() {
 
   var xhttp = new XMLHttpRequest();
   xhttp.open("GET", 'http://' + server + ':' + statusJsonPort + '/status.json', false);
+  xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
   xhttp.send(null);
   processResponse = JSON.parse(xhttp.responseText);
 }
