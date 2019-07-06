@@ -1,15 +1,16 @@
 //Check localhost process status every half second
 setInterval(checkProcessStatus, 500);
 
-config = '{"server":"localhost", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000"}';
+config = '{"server":"ec2-34-212-12-236.us-west-2.compute.amazonaws.com", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000", "vidsDownloadPort":"3003"}';
 
 //read properties from file
 configData = JSON.parse(config);
 
-server          = configData.server;
-statusJsonPort  = configData.statusJsonPort;
-downloadPort    = configData.downloadPort;
-readyStatusPort = configData.readyStatusPort;
+server           = configData.server;
+statusJsonPort   = configData.statusJsonPort;
+downloadPort     = configData.downloadPort;
+readyStatusPort  = configData.readyStatusPort;
+vidsDownloadPort = configData.vidsDownloadPort;
 
 var processResponse;
 
@@ -26,10 +27,17 @@ function processFileStatus() {
   var responseStatus = processResponse;
   var status         = responseStatus.status;
   var fileName       = responseStatus.fileName;
+  var fileType       = responseStatus.fileType;
   console.log(responseStatus);
 
   if (status == 'done') {
-    chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
+    if (fileType == 'mp3'){
+      chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
+    }
+    else if (fileType == 'mp4'){
+      chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp3'});
+    }
+    
     chrome.browserAction.setPopup({popup: "popup.html"});
     var xhttp = new XMLHttpRequest();
     xhttp.open("GET", "http://" + server + ":" + readyStatusPort + "/urls/ready_status", true);

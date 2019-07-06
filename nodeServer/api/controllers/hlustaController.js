@@ -119,7 +119,7 @@ function downloadVids(vidUrl, mp4Path, callback) {
       callback();
       
     } catch (err) {
-      console.log("bad thing = " + err.toString())
+      console.log("bad thing");
     }
   })
 
@@ -192,6 +192,7 @@ function processRequests() {
                 console.log("Response value: " + responseVal);
                 moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
                 setStatus("done", fileName);
+                setStatus("type", "mp3");
           })
         })
       });
@@ -249,6 +250,7 @@ function processVidRequests() {
             downloadVids(youTubeUrl, __dirname + "/../../vids/" + fileName + '.mp4', function(returnValue) {
               console.log('this is the download return value ' + returnValue.toString());
               setStatus("done", fileName);
+              setStatus("type", "mp4");
         })
       });
     });
