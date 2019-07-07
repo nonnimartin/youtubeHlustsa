@@ -116,9 +116,11 @@ function downloadVids(vidUrl, mp4Path, callback) {
 
   vidStream.on('end', () => {
     try {
+      console.log('got here in callback block');
       callback();
       
     } catch (err) {
+      console.log(err);
       console.log("bad thing");
     }
   })
