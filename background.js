@@ -36,7 +36,7 @@ function processFileStatus() {
       chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
     }
     else if (fileType == 'mp4'){
-      chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp3'});
+      chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'});
     }
     
     chrome.browserAction.setPopup({popup: "popup.html"});
