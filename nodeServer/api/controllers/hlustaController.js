@@ -190,7 +190,6 @@ function processRequests() {
             var mp3Path  = mp4Path.split(".")[0] + ".mp3";
 
             downloadVids(youTubeUrl, mp4Path, function(returnValue) {
-              console.log('this is the download return value ' + returnValue.toString());
               mp4ToMp3(mp4Path, function(responseVal) {
                 console.log("Response value: " + responseVal);
                 moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
