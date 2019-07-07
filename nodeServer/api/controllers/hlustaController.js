@@ -60,12 +60,13 @@ function serveStatus() {
   }
 }
 
-function setStatus(status, fileName) {
+function setStatus(status, fileName, type) {
 
     //Write current status to json file for Chrome to check
     var statusJSON = {
       "status" : status,
-      "fileName" : fileName
+      "fileName" : fileName,
+      "type" : type
     };
 
     fs.writeFile(__dirname + "/../../status/" + statusFile, JSON.stringify(statusJSON), function(err) {
@@ -193,8 +194,7 @@ function processRequests() {
               mp4ToMp3(mp4Path, function(responseVal) {
                 console.log("Response value: " + responseVal);
                 moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
-                setStatus("done", fileName);
-                setStatus("type", "mp3");
+                setStatus("done", fileName, "mp3");
           })
         })
       });
@@ -226,7 +226,7 @@ function processVidRequests() {
     console.log("Youtube url = " + youTubeUrl);
     var task_id  = new_task.id
     new_task.url = sent_url
-    setStatus("processing", fileName);
+    setStatus("processing", fileName, "mp4");
     serveStatus();
     new_task.save(function(err, task) {
       if (err)
@@ -250,8 +250,7 @@ function processVidRequests() {
             console.log("Buffer size = " + buffer.byteLength);;
 
             downloadVids(youTubeUrl, __dirname + "/../../vids/" + fileName + '.mp4', function(returnValue) {
-              setStatus("done", fileName);
-              setStatus("type", "mp4");
+              setStatus("done", fileName, "mp4");
         })
       });
     });
