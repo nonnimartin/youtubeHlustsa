@@ -250,7 +250,6 @@ function processVidRequests() {
             console.log("Buffer size = " + buffer.byteLength);;
 
             downloadVids(youTubeUrl, __dirname + "/../../vids/" + fileName + '.mp4', function(returnValue) {
-              console.log('this is the download return value ' + returnValue.toString());
               setStatus("done", fileName);
               setStatus("type", "mp4");
         })
