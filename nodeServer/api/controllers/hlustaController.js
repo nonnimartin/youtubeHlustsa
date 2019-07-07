@@ -66,7 +66,7 @@ function setStatus(status, fileName, type) {
     var statusJSON = {
       "status" : status,
       "fileName" : fileName,
-      "type" : type
+      "fileType" : type
     };
 
     fs.writeFile(__dirname + "/../../status/" + statusFile, JSON.stringify(statusJSON), function(err) {
