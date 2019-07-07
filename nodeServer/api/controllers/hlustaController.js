@@ -141,6 +141,8 @@ function queueRequests(req, res) {
 
 function processRequests() {
 
+  console.log('in the mp3 processing');
+
 
   while (reqsQueueArray.length > 0 && !processing) {
 
@@ -203,8 +205,17 @@ function processRequests() {
   }
 }
 
+function uuidv4() {
+  //generate uuid for job
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 function processVidRequests() {
 
+  console.log('in the vid processing');
 
   while (reqsQueueArray.length > 0 && !processing) {
 
@@ -224,6 +235,7 @@ function processVidRequests() {
     var youTubeUrl = sent_body['youTubeUrl']
     console.log("Youtube url = " + youTubeUrl);
     var task_id  = new_task.id
+    console.log('task id = ' + task_id.toString());
     new_task.url = sent_url
     setStatus("processing", fileName, "mp4");
     serveStatus();
