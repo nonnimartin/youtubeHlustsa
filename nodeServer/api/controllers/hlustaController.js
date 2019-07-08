@@ -62,8 +62,11 @@ function serveStatus() {
 
 function setStatus(status, fileName, type, uuid) {
 
+     var statusFilePath = __dirname + "/../../status/" + statusFile;
+     console.log(statusFilePath);
+
     //get existing status from file
-    fs.readFile(__dirname + "/../../status/" + statusFile, 'utf8', function(err, data) {
+    fs.readFile(statusFilePath, 'utf8', function(err, data) {
       if (err) throw err;
       var fileContent = data;
       console.log('reading file data: ' + data);
@@ -82,7 +85,7 @@ function setStatus(status, fileName, type, uuid) {
     //write status json mapped to uuid
     dataObj[uuid] = statusJSON;
 
-    fs.writeFile(__dirname + "/../../status/" + statusFile, JSON.stringify(dataObj), function(err) {
+    fs.writeFile(statusFilePath, JSON.stringify(dataObj), function(err) {
     if (err) throw err;
     });
 }
