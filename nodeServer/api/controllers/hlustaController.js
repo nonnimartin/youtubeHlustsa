@@ -60,7 +60,16 @@ function serveStatus() {
   }
 }
 
-function setStatus(status, fileName, type) {
+function setStatus(status, fileName, type, uuid) {
+
+    //get existing status from file
+    fs.readFile("/../../status/" + statusFile, 'utf8', function(err, data) {
+      var fileContent = data;
+      console.log('reading file data: ' + data);
+    });
+
+    //parse json file to javascript object
+    var dataObj = JSON.parse(data);
 
     //Write current status to json file for Chrome to check
     var statusJSON = {
@@ -69,7 +78,10 @@ function setStatus(status, fileName, type) {
       "fileType" : type
     };
 
-    fs.writeFile(__dirname + "/../../status/" + statusFile, JSON.stringify(statusJSON), function(err) {
+    //write status json mapped to uuid
+    dataObj[uuid] = statusJSON;
+
+    fs.writeFile(__dirname + "/../../status/" + statusFile, JSON.stringify(dataObj), function(err) {
     if (err) throw err;
     });
 }
@@ -157,13 +169,14 @@ function processRequests() {
     var new_task  = new Task(req.body);
     var sent_body = req.body
     console.log(sent_body)
-    var sent_url = sent_body['url']
-    var fileName = sent_body['name']
-    var youTubeUrl = sent_body['youTubeUrl']
+    var sent_url   = sent_body['url'];
+    var fileName   = sent_body['name'];
+    var youTubeUrl = sent_body['youTubeUrl'];
+    var jobUuid    = sent_body['jobUuid'];
     console.log("Youtube url = " + youTubeUrl);
     var task_id  = new_task.id
     new_task.url = sent_url
-    setStatus("processing", fileName);
+    setStatus("processing", fileName, 'mp3', jobUuid);
     serveStatus();
     new_task.save(function(err, task) {
       if (err)
@@ -195,7 +208,7 @@ function processRequests() {
               mp4ToMp3(mp4Path, function(responseVal) {
                 console.log("Response value: " + responseVal);
                 moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
-                setStatus("done", fileName, "mp3");
+                setStatus("done", fileName, "mp3", jobUuid);
           })
         })
       });
@@ -225,11 +238,12 @@ function processVidRequests() {
     var sent_url = sent_body['url']
     var fileName = sent_body['name']
     var youTubeUrl = sent_body['youTubeUrl']
+    var jobUuid    = sent_body['jobUuid'];
     console.log("Youtube url = " + youTubeUrl);
     var task_id  = new_task.id
     console.log('task id = ' + task_id.toString());
     new_task.url = sent_url
-    setStatus("processing", fileName, "mp4");
+    setStatus("processing", fileName, "mp4", jobUuid);
     serveStatus();
     new_task.save(function(err, task) {
       if (err)
@@ -253,7 +267,7 @@ function processVidRequests() {
             console.log("Buffer size = " + buffer.byteLength);;
 
             downloadVids(youTubeUrl, __dirname + "/../../vids/" + fileName + '.mp4', function(returnValue) {
-              setStatus("done", fileName, "mp4");
+              setStatus("done", fileName, "mp4", jobUuid);
         })
       });
     });
@@ -301,7 +315,7 @@ exports.clear_backups = function(req, res) {
 };
 
 exports.ready_status = function(req, res) {
-  setStatus('ready', '');
+  setStatus('ready', '', '', '');
 }
 
 exports.get_record = function(req, res) {
