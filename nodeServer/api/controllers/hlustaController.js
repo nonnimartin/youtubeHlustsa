@@ -65,7 +65,7 @@ function setStatus(status, fileName, type, uuid) {
      var dataObj = new Object();
 
      var statusFilePath = __dirname + "/../../status/" + statusFile;
-     console.log(statusFilePath);
+     console.log('status file path = ' + statusFilePath);
 
     //get existing status from file
     fs.readFile(statusFilePath, 'utf8', function(err, data) {
@@ -74,25 +74,30 @@ function setStatus(status, fileName, type, uuid) {
       console.log('reading file data: ' + data);
 
       //parse json file to javascript object
+      console.log('data = ' + data);
+      if (data == null || data == undefined || data == '') data = '{}';
       dataObj = JSON.parse(data);
 
+      //Write current status to json file for Chrome to check
+      var statusJSON = {
+        "status" : status,
+        "fileName" : fileName,
+        "fileType" : type
+      };
+
+
+      //existing object
+      console.log('data obj before = ' + JSON.stringify(dataObj));
+      //write status json mapped to uuid
+      dataObj[uuid] = statusJSON;
+      console.log('data obj after = ' + JSON.stringify(dataObj));
+
+      console.log('data to write to file: ' + JSON.stringify(dataObj));
+
+      fs.writeFileSync(statusFilePath, JSON.stringify(dataObj));
+
     });
 
-    //Write current status to json file for Chrome to check
-    var statusJSON = {
-      "status" : status,
-      "fileName" : fileName,
-      "fileType" : type
-    };
-
-    //write status json mapped to uuid
-    dataObj[uuid] = statusJSON;
-
-    console.log('data to write to file: ' + JSON.stringify(dataObj));
-
-    fs.writeFile(statusFilePath, JSON.stringify(dataObj), function(err) {
-    if (err) throw err;
-    });
 }
 
 function deleteFile(filePath) {
@@ -101,6 +106,7 @@ function deleteFile(filePath) {
     console.log('Successfully deleted ' + filePath);
     });
 }
+
 function moveFile(fromPath, toPath) {
   fs.rename(fromPath, toPath, function (err) {
     if (err) throw err;
