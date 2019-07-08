@@ -222,6 +222,8 @@ function processRequests() {
 
     console.log('status = ' + status);
 
+    if (status == 'processing' || status == 'done') continue;
+
     https.get(parsedUrl, function(res) {
         
         var data = [];
@@ -294,6 +296,8 @@ function processVidRequests() {
     var status = getStatus(jobUuid)
 
     console.log('status = ' + status);
+
+    if (status == 'processing' || status == 'done') continue;
 
     https.get(parsedUrl, function(res) {
         
