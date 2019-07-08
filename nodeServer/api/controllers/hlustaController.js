@@ -60,6 +60,16 @@ function serveStatus() {
   }
 }
 
+function getStatus(uuid){
+     //get existing status from file
+    fs.readFile(statusFilePath, 'utf8', function(err, data) {
+      if (err) throw err;
+      var fileContent = JSON.parse(data);
+      var thisJobInfo = fileContent[uuid];
+      return thisJobInfo.status;
+
+}
+
 function setStatus(status, fileName, type, uuid) {
 
      var dataObj = new Object();
@@ -188,7 +198,7 @@ function processRequests() {
     var fileName   = sent_body['name'];
     var youTubeUrl = sent_body['youTubeUrl'];
     var jobUuid    = sent_body['jobUuid'];
-    console.log("Youtube url = " + youTubeUrl);
+    console.log("job uuid = " + jobUuid);
     var task_id  = new_task.id
     new_task.url = sent_url
     setStatus("processing", fileName, 'mp3', jobUuid);
@@ -200,6 +210,8 @@ function processRequests() {
     });
 
     var parsedUrl = url.parse(sent_url);
+
+    console.log('status = ' + getStatus(jobUuid));
 
     https.get(parsedUrl, function(res) {
         
