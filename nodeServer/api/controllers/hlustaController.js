@@ -62,6 +62,8 @@ function serveStatus() {
 
 function setStatus(status, fileName, type, uuid) {
 
+     var dataObj = new Object();
+
      var statusFilePath = __dirname + "/../../status/" + statusFile;
      console.log(statusFilePath);
 
@@ -70,10 +72,12 @@ function setStatus(status, fileName, type, uuid) {
       if (err) throw err;
       var fileContent = data;
       console.log('reading file data: ' + data);
+
+      //parse json file to javascript object
+      dataObj = JSON.parse(data);
+
     });
 
-    //parse json file to javascript object
-    var dataObj = JSON.parse(data);
 
     //Write current status to json file for Chrome to check
     var statusJSON = {
