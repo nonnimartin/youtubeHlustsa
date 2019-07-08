@@ -75,7 +75,7 @@ function setStatus(status, fileName, type, uuid) {
 
       //parse json file to javascript object
       console.log('data = ' + data);
-      if (data == null || data == undefined || data == '') data = '{}';
+      if (data == null || data == undefined || data == '' || JSON.stringify(data) == '{"status":"startup"}') data = '{}';
       dataObj = JSON.parse(data);
 
       //Write current status to json file for Chrome to check
