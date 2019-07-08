@@ -62,7 +62,7 @@ function serveStatus() {
 
 function getStatus(uuid){
      //get existing status from file
-    fs.readFile(statusFilePath, 'utf8', function(err, data) {
+    fs.readFileSync(statusFilePath, 'utf8'){
       if (err) throw err;
       var fileContent = JSON.parse(data);
       var thisJobInfo = fileContent[uuid];
