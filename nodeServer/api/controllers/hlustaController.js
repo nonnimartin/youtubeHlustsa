@@ -78,7 +78,6 @@ function setStatus(status, fileName, type, uuid) {
 
     });
 
-
     //Write current status to json file for Chrome to check
     var statusJSON = {
       "status" : status,
@@ -88,6 +87,8 @@ function setStatus(status, fileName, type, uuid) {
 
     //write status json mapped to uuid
     dataObj[uuid] = statusJSON;
+
+    console.log('data to write to file: ' + JSON.stringify(dataObj));
 
     fs.writeFile(statusFilePath, JSON.stringify(dataObj), function(err) {
     if (err) throw err;
