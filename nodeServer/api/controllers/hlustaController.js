@@ -62,6 +62,7 @@ function serveStatus() {
 
 function getStatus(uuid){
     
+    var statusFilePath = __dirname + "/../../status/" + statusFile;
     //get existing status from file
     var data = fs.readFileSync(statusFilePath, 'utf8');
     var fileContent = JSON.parse(data);
