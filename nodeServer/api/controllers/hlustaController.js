@@ -188,6 +188,8 @@ function processRequests() {
 
   while (reqsQueueArray.length > 0 && !processing) {
 
+    console.log(JSON.stringify(reqsQueueArray));
+
     processing     = true;
 
     var currentReq = reqsQueueArray[0];
@@ -257,6 +259,8 @@ function processVidRequests() {
   console.log('in the vid processing');
 
   while (reqsQueueArray.length > 0 && !processing) {
+
+    console.log(JSON.stringify(reqsQueueArray));
 
     processing     = true;
 
