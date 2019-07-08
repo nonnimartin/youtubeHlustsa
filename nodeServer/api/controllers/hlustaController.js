@@ -63,7 +63,7 @@ function serveStatus() {
 function setStatus(status, fileName, type, uuid) {
 
     //get existing status from file
-    fs.readFile("/../../status/" + statusFile, 'utf8', function(err, data) {
+    fs.readFile(__dirname + "/../../status/" + statusFile, 'utf8', function(err, data) {
       var fileContent = data;
       console.log('reading file data: ' + data);
     });
