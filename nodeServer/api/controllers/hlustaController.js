@@ -188,7 +188,7 @@ function processRequests() {
 
   while (reqsQueueArray.length > 0 && !processing) {
 
-    console.log(JSON.stringify(reqsQueueArray));
+    console.log(reqsQueueArray.toString());
 
     processing     = true;
 
@@ -260,7 +260,7 @@ function processVidRequests() {
 
   while (reqsQueueArray.length > 0 && !processing) {
 
-    console.log(JSON.stringify(reqsQueueArray));
+    console.log(reqsQueueArray.toString());
 
     processing     = true;
 
