@@ -67,10 +67,10 @@ function getStatus(uuid){
     var data = fs.readFileSync(statusFilePath, 'utf8');
     var fileContent = JSON.parse(data);
     var thisJobInfo = fileContent[uuid];
-    if (thisJobInfo.status != undefined){
-      return thisJobInfo.status;
-    }else{
+    if (thisJobInfo == undefined){
       return false;
+    }else{
+      return thisJobInfo.status;
     }
 
 }
