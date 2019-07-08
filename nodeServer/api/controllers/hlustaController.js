@@ -216,7 +216,12 @@ function processRequests() {
 
     var parsedUrl = url.parse(sent_url);
 
-    console.log('status = ' + getStatus(jobUuid));
+    var status = getStatus(jobUuid)
+
+    console.log('status = ' + status);
+
+    //return if don't need to process this file
+    if (status == 'processing' || status == 'done') return;
 
     https.get(parsedUrl, function(res) {
         
@@ -284,6 +289,13 @@ function processVidRequests() {
     });
 
     var parsedUrl = url.parse(sent_url);
+
+    var status = getStatus(jobUuid)
+
+    console.log('status = ' + status);
+
+    //return if don't need to process this file
+    if (status == 'processing' || status == 'done') return;
 
     https.get(parsedUrl, function(res) {
         
