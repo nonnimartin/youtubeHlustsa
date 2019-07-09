@@ -10,6 +10,11 @@ function checkLocation() {
         localStorage.setItem("youTubeTitle",   document.title.replace(/\s+/g, ''))
         localStorage.setItem("youTubeUrl", pathname);
     });
+
+     // Save it using the Chrome extension storage API.
+    chrome.storage.sync.set({'jobsMap' : localStorage.getItem('jobsMap')}, function() {
+      console.log('Settings saved');
+    });
 }
 
 function getJobs() {
@@ -19,6 +24,7 @@ function getJobs() {
 }
 
 function createJob(title, extension){
+
     //get current jobs map
     var jobsMap = getJobs();
     var thisKey = title + '.' + extension;
@@ -100,7 +106,7 @@ setInterval(checkLocation, 300);
 
                 sendResponse(contentJSON);
                 break;
-                
+
             case "getContentJSONVid":
 
                 var googleVidUrl   = localStorage.getItem("googleVidUrl");

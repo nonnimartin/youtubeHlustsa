@@ -1,5 +1,5 @@
-//Check localhost process status every half second
-setInterval(checkProcessStatus, 500);
+//Check localhost process status every second
+setInterval(checkProcessStatus, 1000);
 
 config = '{"server":"ec2-34-212-12-236.us-west-2.compute.amazonaws.com", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000", "vidsDownloadPort":"3003"}';
 
@@ -18,8 +18,8 @@ function checkProcessStatus() {
 
   var xhttp = new XMLHttpRequest();
   xhttp.open("GET", 'http://' + server + ':' + statusJsonPort + '/status.json', false);
-  xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
   xhttp.send(null);
+  console.log(xhttp.responseText);
   processResponse = JSON.parse(xhttp.responseText);
 }
 
@@ -32,20 +32,9 @@ function getJobs() {
 //these methods may be unnecessary and handled in the content file
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-function removeJob(obj, uuid){
-   //flip object to map uuids to titles and remove job by uuid
-   var revObj = objectFlip(obj);
-   delete revObj.uuid;
-   return objectFlip(revObj);
-}
-
-function objectFlip(obj) {
-  //reverse mapping in js object
-  const flipped = {};
-  Object.keys(obj).forEach((key) => {
-    ret[obj[key]] = key;
-  });
-  return flipped;
+function removeJob(obj, fileName){
+   delete obj[fileName];
+   return obj;
 }
 
 function uuidv4() {
@@ -58,42 +47,72 @@ function uuidv4() {
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 function processFileStatus() {
-  //process reponse variable works
-  var responseStatus = processResponse;
-  var status         = responseStatus.status;
-  var fileName       = responseStatus.fileName;
-  var fileType       = responseStatus.fileType;
-  var fileType       = responseStatus.fileType;
-  
-  //get jobs map from browser storage
-  var jobsMap  = getJobs();
-  var jobsObj  = JSON.parse(jobsMap);
 
-  //ADD JOB HANDLING HERE FROM SERVER STATUS
+  var jobsString;
 
-  //added status change to keep from downloading temporarily
-  if (status == 'doneXXX') {
-    if (fileType == 'mp3'){
-      chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
+  // Read it using the storage API
+  chrome.storage.sync.get(['jobsMap'], function(items) {
+
+    jobsString = items['jobsMap'];
+    var jobsObj  = JSON.parse(jobsString);
+
+    for (jobId in jobsObj){
+
+      if (jobsObj == undefined) continue;
+
+      var uuid           = jobsObj[jobId];
+      console.log('uuid = ' + uuid);
+      if (!(uuid in processResponse)) continue;
+      //process reponse variable works
+      console.log('process response = ' + JSON.stringify(processResponse));
+      var thisJobRes     =  processResponse[uuid];
+      console.log('this job res = ' + thisJobRes);
+      var thisJobResObj  = thisJobRes;
+      var status         = thisJobResObj['status'];
+      var fileName       = thisJobResObj['fileName'];
+      var fileType       = thisJobResObj.fileType;
+      var fileType       = thisJobResObj.fileType;
+      console.log('job status = ' + status);
+      
+
+      //added status change to keep from downloading temporarily
+      if (status == 'done') {
+        if (fileType == 'mp3'){
+          chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
+          var newObj = new Object();
+          newObj = removeJob(items['jobsMap'], fileName);
+          //update storage to remove downloaded item
+          chrome.storage.sync.set(newObj, function() {
+            console.log('Settings saved in background');
+          });
+        }
+        else if (fileType == 'mp4'){
+          chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'});
+          var newObj = new Object();
+          newObj = removeJob(items['jobsMap'], fileName);
+          //update storage to remove downloaded item
+          chrome.storage.sync.set(newObj, function() {
+            console.log('Settings saved in background');
+          });
+        }
+        
+        chrome.browserAction.setPopup({popup: "popup.html"});
+        var xhttp = new XMLHttpRequest();
+        xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+        xhttp.open("GET", "http://" + server + ":" + readyStatusPort + "/urls/ready_status", true);
+        xhttp.send(null);
+        return "done";
+      }else if (status == 'processing' && fileType == 'mp3') {
+        chrome.browserAction.setPopup({popup: "popupDisabledMp3.html"});
+      }
+      else if (status == 'processing' && fileType == 'mp4'){
+        chrome.browserAction.setPopup({popup: "popupDisabledMp4.html"});
+      }else if (status == 'startup') {
+        chrome.browserAction.setPopup({popup: "popup.html"});
+      }  
     }
-    else if (fileType == 'mp4'){
-      chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'});
-    }
-    
-    chrome.browserAction.setPopup({popup: "popup.html"});
-    var xhttp = new XMLHttpRequest();
-    xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
-    xhttp.open("GET", "http://" + server + ":" + readyStatusPort + "/urls/ready_status", true);
-    xhttp.send(null);
-    return "done";
-  }else if (status == 'processing' && fileType == 'mp3') {
-    chrome.browserAction.setPopup({popup: "popupDisabledMp3.html"});
-  }
-  else if (status == 'processing' && fileType == 'mp4'){
-    chrome.browserAction.setPopup({popup: "popupDisabledMp4.html"});
-  }else if (status == 'startup') {
-    chrome.browserAction.setPopup({popup: "popup.html"});
-  }
+
+  });
 
 }
 
