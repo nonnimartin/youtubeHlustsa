@@ -72,7 +72,7 @@ function getMp3() {
 
             //Send google video URL and filename to node.js server for processing
             postUrl(googleVidUrl, youTubeTitle, youTubeUrl, false, jobUuid);
-            console.log(checkProcessStatus());
+            checkProcessStatus();
         });
     })
 };
@@ -100,6 +100,7 @@ function getVid() {
             console.log("Google video URL is " + googleVidUrl + "and title is " + youTubeTitle);
             //Send google video URL and filename to node.js server for processing
             postUrl(googleVidUrl, youTubeTitle, youTubeUrl, true, jobUuid);
+            checkProcessStatus();
         });
     })
 };

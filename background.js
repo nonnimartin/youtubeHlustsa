@@ -12,6 +12,8 @@ downloadPort     = configData.downloadPort;
 readyStatusPort  = configData.readyStatusPort;
 vidsDownloadPort = configData.vidsDownloadPort;
 
+processing = false;
+
 var processResponse;
 
 function checkProcessStatus() {
@@ -44,73 +46,106 @@ function uuidv4() {
   });
 }
 
+function findNextJob(clientJobsList, serverJobsList){
+  //return first client job uuid that's in server jobs list
+  for (job in clientJobsList){
+    var thisUuid = clientJobsList[job];
+    console.log('trying to match ' + thisUuid.toString() + ' ' + 'in ' + JSON.stringify(serverJobsList));
+    if (thisUuid in serverJobsList) return thisUuid;
+  }
+  //if none match return false
+  return false;
+}
+
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 function processFileStatus() {
-
+  
   var jobsString;
+  console.log('got to beginning of process file status');
 
   // Read it using the storage API
   chrome.storage.sync.get(['jobsMap'], function(items) {
 
-    jobsString = items['jobsMap'];
-    var jobsObj  = JSON.parse(jobsString);
+    jobsString     = items['jobsMap'];
+    var jobsArray  = JSON.parse(jobsString);
 
-    for (jobId in jobsObj){
+    console.log('jobsArray = ' + JSON.stringify(jobsArray));
 
-      if (jobsObj == undefined) continue;
+    if (jobsArray == undefined) return;
+    console.log('got past array');
+    if (jobsArray.length == 0)  return;
+    console.log('got past 0');
+    if (processing)             return;
+    console.log('got past processing');
+    //get the first job in array
+    console.log('about to find next jorb');
+    var uuid = findNextJob(jobsArray, processResponse);
 
-      var uuid           = jobsObj[jobId];
-      console.log('uuid = ' + uuid);
-      if (!(uuid in processResponse)) continue;
-      //process reponse variable works
-      console.log('process response = ' + JSON.stringify(processResponse));
-      var thisJobRes     =  processResponse[uuid];
-      console.log('this job res = ' + thisJobRes);
-      var thisJobResObj  = thisJobRes;
-      var status         = thisJobResObj['status'];
-      var fileName       = thisJobResObj['fileName'];
-      var fileType       = thisJobResObj.fileType;
-      var fileType       = thisJobResObj.fileType;
-      console.log('job status = ' + status);
-      
-
-      //added status change to keep from downloading temporarily
-      if (status == 'done') {
-        if (fileType == 'mp3'){
-          chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
-          var newObj = new Object();
-          newObj = removeJob(items['jobsMap'], fileName);
-          //update storage to remove downloaded item
-          chrome.storage.sync.set(newObj, function() {
-            console.log('Settings saved in background');
-          });
-        }
-        else if (fileType == 'mp4'){
-          chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'});
-          var newObj = new Object();
-          newObj = removeJob(items['jobsMap'], fileName);
-          //update storage to remove downloaded item
-          chrome.storage.sync.set(newObj, function() {
-            console.log('Settings saved in background');
-          });
-        }
-        
-        chrome.browserAction.setPopup({popup: "popup.html"});
-        var xhttp = new XMLHttpRequest();
-        xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
-        xhttp.open("GET", "http://" + server + ":" + readyStatusPort + "/urls/ready_status", true);
-        xhttp.send(null);
-        return "done";
-      }else if (status == 'processing' && fileType == 'mp3') {
-        chrome.browserAction.setPopup({popup: "popupDisabledMp3.html"});
-      }
-      else if (status == 'processing' && fileType == 'mp4'){
-        chrome.browserAction.setPopup({popup: "popupDisabledMp4.html"});
-      }else if (status == 'startup') {
-        chrome.browserAction.setPopup({popup: "popup.html"});
-      }  
+    //if no next job matches, return
+    if (!uuid){
+      console.log('no job matches this time, returning');
+      return;
     }
+    console.log('jobs array = ' + JSON.stringify(uuid));
+    console.log('jobs array = ' + JSON.stringify(processResponse));
+    console.log('uuid = ' + uuid);
+
+    //process reponse variable works
+    var thisJobRes     =  processResponse[uuid];
+    console.log('this job res = ' + thisJobRes);
+    var thisJobResObj  = thisJobRes;
+    var status         = thisJobResObj['status'];
+    var fileName       = thisJobResObj['fileName'];
+    var fileType       = thisJobResObj.fileType;
+    var fileType       = thisJobResObj.fileType;
+    console.log('job status = ' + status);
+    
+
+    //added status change to keep from downloading temporarily
+    if (status == 'done') {
+      if (fileType == 'mp3'){
+        console.log('downloading mp3');
+        processing = true;
+        chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
+        var newObj = new Object();
+        newObj = removeJob(items['jobsMap'], fileName);
+        //update storage to remove downloaded item
+        chrome.storage.sync.set(newObj, function() {
+          //remove entry from object list in storage and loop
+          console.log('Settings saved in background');
+        });
+        processing = false;
+      }
+      else if (fileType == 'mp4'){
+        console.log('downloading mp4');
+        processing = true;
+        chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'});
+        var newObj = new Object();
+        newObj = removeJob(items['jobsMap'], fileName);
+        //update storage to remove downloaded item
+        chrome.storage.sync.set(newObj, function() {
+          //remove entry from object list in storage and loop
+          console.log('Settings saved in background');
+        });
+        processing = false;
+      }
+      
+      chrome.browserAction.setPopup({popup: "popup.html"});
+      var xhttp = new XMLHttpRequest();
+      xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+      xhttp.open("GET", "http://" + server + ":" + readyStatusPort + "/urls/ready_status", true);
+      xhttp.send(null);
+      return "done";
+    }else if (status == 'processing' && fileType == 'mp3') {
+      chrome.browserAction.setPopup({popup: "popupDisabledMp3.html"});
+    }
+    else if (status == 'processing' && fileType == 'mp4'){
+      chrome.browserAction.setPopup({popup: "popupDisabledMp4.html"});
+    }else if (status == 'startup') {
+      chrome.browserAction.setPopup({popup: "popup.html"});
+    }  
+    
 
   });
 
