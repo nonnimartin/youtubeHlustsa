@@ -68,15 +68,12 @@ setInterval(checkLocation, 300);
                 var youTubeTitle   = localStorage.getItem("youTubeTitle");
                 var youTubeUrl     = localStorage.getItem("youTubeUrl");
 
+
                 //create job
-                createJob(youTubeTitle, 'mp3');
+                var uuid = createJob(youTubeTitle, 'mp3');
                 
                 //handling job uuid
-                var uuid = createJob(youTubeTitle, 'mp3');
-                var jobsMap        = JSON.parse(jobsJson);
                 var jobTitle       = youTubeTitle + '.mp3';
-                var jobUuid        = jobsMap[jobTitle];
-                console.log('mp3 job uuid = ' + jobUuid);
 
                 contentJSON = { "googleVidUrl" : googleVidUrl,
                                 "youTubeTitle" : youTubeTitle,
@@ -103,11 +100,7 @@ setInterval(checkLocation, 300);
                 var uuid = createJob(youTubeTitle, 'mp4');
 
                 //handling job uuid
-                var jobsJson       = getJobs();
-                var jobsMap        = JSON.parse(jobsJson);
                 var jobTitle       = youTubeTitle + '.mp4';
-                var jobUuid        = jobsMap[jobTitle];
-                console.log('vid job uuid = ' + jobUuid);
 
                 contentJSON = { "googleVidUrl" : googleVidUrl,
                                 "youTubeTitle" : youTubeTitle,
