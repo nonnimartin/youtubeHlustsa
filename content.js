@@ -82,7 +82,7 @@ setInterval(checkLocation, 300);
                 }
                 
                 chrome.storage.sync.set({'jobsMap' : localStorage.getItem('jobsMap')}, function() {
-                  console.log('Settings saved');
+                  console.log('Settings are saved');
                 });
 
                 console.log('getContentJSON content json = ' + JSON.stringify(contentJSON));
