@@ -10,11 +10,6 @@ function checkLocation() {
         localStorage.setItem("youTubeTitle",   document.title.replace(/\s+/g, ''))
         localStorage.setItem("youTubeUrl", pathname);
     });
-
-     // Save it using the Chrome extension storage API.
-    chrome.storage.sync.set({'jobsMap' : localStorage.getItem('jobsMap')}, function() {
-      console.log('Settings saved');
-    });
 }
 
 function getJobs() {
@@ -26,25 +21,14 @@ function getJobs() {
 function createJob(title, extension){
 
     //get current jobs map
-    var jobsMap = getJobs();
+    var jobsMap = new Object();
     var thisKey = title + '.' + extension;
-    var mapObj;
     
-    if (jobsMap == null || jobsMap == 'null'){
-        mapObj = new Object();
-    }else{
-        mapObj = JSON.parse(jobsMap);
-    }
-    
-    if (thisKey in mapObj){
-        console.log('duplicate job');
-      return;
-    }else{
-      var uuid = uuidv4();
-      mapObj[thisKey] = uuid;
-      stringObj = JSON.stringify(mapObj);
-      localStorage.setItem('jobsMap', stringObj);
-    }
+    var uuid = uuidv4();
+    jobsMap[thisKey] = uuid;
+    stringObj = JSON.stringify(jobsMap);
+    localStorage.setItem('jobsMap', stringObj);
+    return uuid;
 }
 
 function removeJob(obj, uuid){
@@ -88,7 +72,7 @@ setInterval(checkLocation, 300);
                 createJob(youTubeTitle, 'mp3');
                 
                 //handling job uuid
-                var jobsJson       = getJobs();
+                var uuid = createJob(youTubeTitle, 'mp3');
                 var jobsMap        = JSON.parse(jobsJson);
                 var jobTitle       = youTubeTitle + '.mp3';
                 var jobUuid        = jobsMap[jobTitle];
@@ -97,13 +81,15 @@ setInterval(checkLocation, 300);
                 contentJSON = { "googleVidUrl" : googleVidUrl,
                                 "youTubeTitle" : youTubeTitle,
                                 "youTubeUrl"   : youTubeUrl,
-                                "jobUuid"      : jobUuid
+                                "jobUuid"      : uuid
                 }
-
-                createJob(youTubeTitle, 'mp3');
+                
+                chrome.storage.sync.set({'jobsMap' : localStorage.getItem('jobsMap')}, function() {
+                  console.log('Settings saved');
+                });
 
                 console.log('getContentJSON content json = ' + JSON.stringify(contentJSON));
-
+                
                 sendResponse(contentJSON);
                 break;
 
@@ -114,7 +100,7 @@ setInterval(checkLocation, 300);
                 var youTubeUrl     = localStorage.getItem("youTubeUrl");
 
                 //create job
-                createJob(youTubeTitle, 'mp4');
+                var uuid = createJob(youTubeTitle, 'mp4');
 
                 //handling job uuid
                 var jobsJson       = getJobs();
@@ -123,16 +109,15 @@ setInterval(checkLocation, 300);
                 var jobUuid        = jobsMap[jobTitle];
                 console.log('vid job uuid = ' + jobUuid);
 
-                createJob(youTubeTitle, 'mp4');
-
                 contentJSON = { "googleVidUrl" : googleVidUrl,
                                 "youTubeTitle" : youTubeTitle,
                                 "youTubeUrl"   : youTubeUrl,
-                                "jobUuid"      : jobUuid
+                                "jobUuid"      : uuid
                 }
 
-                console.log('getContentJSON content json = ' + JSON.stringify(contentJSON));
-
+                chrome.storage.sync.set({'jobsMap' : localStorage.getItem('jobsMap')}, function() {
+                   console.log('Settings saved');
+                });
                 sendResponse(contentJSON);
                 break;
             case "getVars":

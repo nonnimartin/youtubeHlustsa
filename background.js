@@ -34,9 +34,13 @@ function getJobs() {
 //these methods may be unnecessary and handled in the content file
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-function removeJob(obj, fileName){
-   delete obj[fileName];
-   return obj;
+function removeJob(obj, uuid){
+   for (key in obj) {
+       if (obj[key] == uuid){
+         delete obj[key];
+         return obj;
+       } 
+   }
 }
 
 function uuidv4() {
@@ -61,94 +65,115 @@ function findNextJob(clientJobsList, serverJobsList){
 
 function processFileStatus() {
   
-  var jobsString;
+  console.log('process response = ' + JSON.stringify(processResponse));
   console.log('got to beginning of process file status');
+  console.log('next item = ' + localStorage.getItem('nextItem'));
 
-  // Read it using the storage API
-  chrome.storage.sync.get(['jobsMap'], function(items) {
+  var nextItem = localStorage.getItem('nextItem');
+  console.log('next item - ' + nextItem);
 
-    jobsString     = items['jobsMap'];
-    var jobsArray  = JSON.parse(jobsString);
+  //check if next job is stored, and set if not
+  if (nextItem == null || nextItem == undefined){
 
-    console.log('jobsArray = ' + JSON.stringify(jobsArray));
+    chrome.storage.sync.get(['jobsMap'], function(items) {
 
-    if (jobsArray == undefined) return;
-    console.log('got past array');
-    if (jobsArray.length == 0)  return;
-    console.log('got past 0');
-    if (processing)             return;
-    console.log('got past processing');
-    //get the first job in array
-    console.log('about to find next jorb');
-    var uuid = findNextJob(jobsArray, processResponse);
+      var jobsString = items['jobsMap'];
 
-    //if no next job matches, return
-    if (!uuid){
-      console.log('no job matches this time, returning');
+      if (jobsString == undefined) return;
+
+      console.log('job obj in storage = ' + JSON.stringify(items['jobsMap']));
+      var jobsObj    = JSON.parse(jobsString);
+      console.log('jobsArray = ' + JSON.stringify(jobsObj));
+
+      //get the job based on the status from server
+      var uuid = jobsObj[Object.keys(jobsObj)[0]];
+
+      console.log('current job id = ' + uuid);
+
+      //process reponse variable works
+      var thisJobRes     =  processResponse[uuid];
+      console.log('this job res = ' + thisJobRes);
+      var thisJobResObj  = thisJobRes;
+      var status         = thisJobResObj['status'];
+      var fileName       = thisJobResObj['fileName'];
+      var fileType       = thisJobResObj.fileType;
+      var fileType       = thisJobResObj.fileType;
+      console.log('job status = ' + status);
+
+      localStorage.setItem('nextItem', uuid);
+      console.log('set item');
+      console.log(localStorage.getItem('nextItem'));
+
+      if (status == 'processing') {
+        chrome.browserAction.setPopup({popup: "popupDisabledBoth.html"});
+      }else if (status == 'done'){
+        chrome.browserAction.setPopup({popup: "popup.html"});
+      }
       return;
+    });
+  }
+
+  //added status change to keep from downloading temporarily
+
+  var nextItemUuid = localStorage.getItem('nextItem');
+  console.log('next item = ' + nextItemUuid);
+
+  //process reponse variable works
+  var thisJobRes     =  processResponse[nextItemUuid];
+  console.log('this job res = ' + thisJobRes);
+  var thisJobResObj  = thisJobRes;
+  var status         = thisJobResObj['status'];
+  var fileName       = thisJobResObj['fileName'];
+  var fileType       = thisJobResObj.fileType;
+  var fileType       = thisJobResObj.fileType;
+  console.log('job status = ' + status);
+
+
+  if (status == 'done') {
+    if (fileType == 'mp3'){
+      console.log('downloading mp3');
+      processing = true;
+      chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
+
+      chrome.storage.sync.clear(function() {
+        var error = chrome.runtime.lastError;
+        if (error) {
+            console.error(error);
+        }
+      });
+      localStorage.removeItem('nextItem');
+      processing = false;
     }
-    console.log('jobs array = ' + JSON.stringify(uuid));
-    console.log('jobs array = ' + JSON.stringify(processResponse));
-    console.log('uuid = ' + uuid);
-
-    //process reponse variable works
-    var thisJobRes     =  processResponse[uuid];
-    console.log('this job res = ' + thisJobRes);
-    var thisJobResObj  = thisJobRes;
-    var status         = thisJobResObj['status'];
-    var fileName       = thisJobResObj['fileName'];
-    var fileType       = thisJobResObj.fileType;
-    var fileType       = thisJobResObj.fileType;
-    console.log('job status = ' + status);
-    
-
-    //added status change to keep from downloading temporarily
-    if (status == 'done') {
-      if (fileType == 'mp3'){
-        console.log('downloading mp3');
-        processing = true;
-        chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
-        var newObj = new Object();
-        newObj = removeJob(items['jobsMap'], fileName);
-        //update storage to remove downloaded item
-        chrome.storage.sync.set(newObj, function() {
-          //remove entry from object list in storage and loop
-          console.log('Settings saved in background');
-        });
-        processing = false;
-      }
-      else if (fileType == 'mp4'){
-        console.log('downloading mp4');
-        processing = true;
-        chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'});
-        var newObj = new Object();
-        newObj = removeJob(items['jobsMap'], fileName);
-        //update storage to remove downloaded item
-        chrome.storage.sync.set(newObj, function() {
-          //remove entry from object list in storage and loop
-          console.log('Settings saved in background');
-        });
-        processing = false;
-      }
+    else if (fileType == 'mp4'){
+      console.log('downloading mp4');
+      processing = true;
+      chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'});
       
-      chrome.browserAction.setPopup({popup: "popup.html"});
-      var xhttp = new XMLHttpRequest();
-      xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
-      xhttp.open("GET", "http://" + server + ":" + readyStatusPort + "/urls/ready_status", true);
-      xhttp.send(null);
-      return "done";
-    }else if (status == 'processing' && fileType == 'mp3') {
-      chrome.browserAction.setPopup({popup: "popupDisabledMp3.html"});
+      chrome.storage.sync.clear(function() {
+        var error = chrome.runtime.lastError;
+        if (error) {
+            console.error(error);
+        }
+      });
+      localStorage.removeItem('nextItem');
+      processing = false;
     }
-    else if (status == 'processing' && fileType == 'mp4'){
-      chrome.browserAction.setPopup({popup: "popupDisabledMp4.html"});
-    }else if (status == 'startup') {
-      chrome.browserAction.setPopup({popup: "popup.html"});
-    }  
-    
 
-  });
+    var xhttp = new XMLHttpRequest();
+    xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+    xhttp.open("GET", "http://" + server + ":" + readyStatusPort + "/urls/ready_status", true);
+    xhttp.send(null);
+    return "done";
+  }
+  return;
+   
 
+    // chrome.storage.sync.clear(function() {
+    //   var error = chrome.runtime.lastError;
+    //   if (error) {
+    //       console.error(error);
+    //   }
+    // });
 }
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
@@ -180,7 +205,7 @@ chrome.runtime.onMessage.addListener(
                 sendResponse(currentJSON);
                 break;
             case "processStatus":
-                var processInterval = setInterval(function() {var status = processFileStatus(); if (status == "done") {clearInterval(processInterval);}}, 500);
+                var processInterval = setInterval(function() {var status = processFileStatus(); if (status == "done") {clearInterval(processInterval);}}, 1000);
                 break;
             default:
                 console.error("Unrecognised message: ", message);
