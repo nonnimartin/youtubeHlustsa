@@ -61,16 +61,9 @@ function findNextJob(clientJobsList, serverJobsList){
   return false;
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 function processFileStatus() {
-  
-  console.log('process response = ' + JSON.stringify(processResponse));
-  console.log('got to beginning of process file status');
-  console.log('next item = ' + localStorage.getItem('nextItem'));
 
   var nextItem = localStorage.getItem('nextItem');
-  console.log('next item - ' + nextItem);
 
   //check if next job is stored, and set if not
   if (nextItem == null || nextItem == undefined){
@@ -81,28 +74,20 @@ function processFileStatus() {
 
       if (jobsString == undefined) return;
 
-      console.log('job obj in storage = ' + JSON.stringify(items['jobsMap']));
       var jobsObj    = JSON.parse(jobsString);
-      console.log('jobsArray = ' + JSON.stringify(jobsObj));
 
       //get the job based on the status from server
       var uuid = jobsObj[Object.keys(jobsObj)[0]];
 
-      console.log('current job id = ' + uuid);
-
       //process reponse variable works
       var thisJobRes     =  processResponse[uuid];
-      console.log('this job res = ' + thisJobRes);
       var thisJobResObj  = thisJobRes;
       var status         = thisJobResObj['status'];
       var fileName       = thisJobResObj['fileName'];
       var fileType       = thisJobResObj.fileType;
       var fileType       = thisJobResObj.fileType;
-      console.log('job status = ' + status);
 
       localStorage.setItem('nextItem', uuid);
-      console.log('set item');
-      console.log(localStorage.getItem('nextItem'));
 
       if (status == 'processing') {
         chrome.browserAction.setPopup({popup: "popupDisabledBoth.html"});
@@ -126,12 +111,17 @@ function processFileStatus() {
   var fileName       = thisJobResObj['fileName'];
   var fileType       = thisJobResObj.fileType;
   var fileType       = thisJobResObj.fileType;
-  console.log('job status = ' + status);
+
+  if (status == 'processing') {
+    chrome.browserAction.setPopup({popup: "popupDisabledBoth.html"});
+  }else if (status == 'done'){
+    chrome.browserAction.setPopup({popup: "popup.html"});
+  }
 
 
   if (status == 'done') {
     if (fileType == 'mp3'){
-      console.log('downloading mp3');
+      console.log('downloading mp3 with uuid ' + nextItemUuid);
       processing = true;
       chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
 
@@ -145,7 +135,7 @@ function processFileStatus() {
       processing = false;
     }
     else if (fileType == 'mp4'){
-      console.log('downloading mp4');
+      console.log('downloading mp4 with uuid ' + nextItemUuid);
       processing = true;
       chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'});
       
@@ -166,14 +156,7 @@ function processFileStatus() {
     return "done";
   }
   return;
-   
-
-    // chrome.storage.sync.clear(function() {
-    //   var error = chrome.runtime.lastError;
-    //   if (error) {
-    //       console.error(error);
-    //   }
-    // });
+  
 }
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {

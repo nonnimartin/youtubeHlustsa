@@ -330,6 +330,8 @@ function processVidRequests() {
 exports.receive_url = function(req, res) {
 
   queueRequests(req, res);
+
+  console.log('reqs queue array = ' + reqsQueueArray);
   
   if (!processing && reqsQueueArray.length != 0) {
   setInterval(processRequests, 3000);
@@ -340,6 +342,8 @@ exports.receive_url = function(req, res) {
 exports.receive_vid_url = function(req, res) {
 
   queueRequests(req, res);
+
+  console.log('reqs queue array = ' + reqsQueueArray);
   
   if (!processing && reqsQueueArray.length != 0) {
   setInterval(processVidRequests, 3000);
