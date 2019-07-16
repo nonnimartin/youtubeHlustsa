@@ -11,6 +11,7 @@ var Task       = mongoose.model('Tasks');
 const serve    = require('serve');
 //learning stand-in for finding why private account requests are denied
 const ytdl     = require('ytdl-core');
+const util = require('util');
 
 var statusFile         = 'status.json';
 var filesServed        = false;
@@ -172,8 +173,8 @@ function downloadVids(vidUrl, mp4Path, callback) {
 
 function queueRequests(req, res) {
 
-  console.log('req = ' + req.toString());
-  console.log('res = ' + res.toString());
+  console.log('req = ' + util.inspect(req, {showHidden: false, depth: null}));
+  console.log('res = ' + util.inspect(res, {showHidden: false, depth: null}));
 
   var currentReqArray = {
     'req' : req,
