@@ -253,6 +253,7 @@ function processRequests() {
     });
    reqsQueueArray.shift();
    processing = false;
+   clearInterval(processRequests);
    return;
   }
 }
@@ -320,6 +321,7 @@ function processVidRequests() {
     });
    reqsQueueArray.shift();
    processing = false;
+   clearInterval(processVidRequests);
    return;
   }
 }
