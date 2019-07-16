@@ -333,6 +333,8 @@ function processVidRequests() {
 //REST API functions
 exports.receive_url = function(req, res) {
 
+  console.log('definitely hit mp3 url endpoint');
+
   queueRequests(req, res);
   
   if (!processing && reqsQueueArray.length != 0) {
@@ -342,7 +344,7 @@ exports.receive_url = function(req, res) {
 };
 
 exports.receive_vid_url = function(req, res) {
-
+  console.log('definitely hit vid url endpoint');
   queueRequests(req, res);
   
   if (!processing && reqsQueueArray.length != 0) {
