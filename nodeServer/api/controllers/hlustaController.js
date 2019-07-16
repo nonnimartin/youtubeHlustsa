@@ -172,8 +172,8 @@ function downloadVids(vidUrl, mp4Path, callback) {
 
 function queueRequests(req, res) {
 
-  console.log('req = ' + JSON.stringify(req));
-  console.log('res = ' + JSON.stringify(res));
+  console.log('req = ' + req.toString());
+  console.log('res = ' + res.toString());
 
   var currentReqArray = {
     'req' : req,
