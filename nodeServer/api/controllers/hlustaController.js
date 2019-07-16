@@ -172,6 +172,9 @@ function downloadVids(vidUrl, mp4Path, callback) {
 
 function queueRequests(req, res) {
 
+  console.log('req = ' + JSON.stringify(req));
+  console.log('res = ' + JSON.stringify(res));
+
   var currentReqArray = {
     'req' : req,
     'res' : res
@@ -330,8 +333,6 @@ function processVidRequests() {
 exports.receive_url = function(req, res) {
 
   queueRequests(req, res);
-
-  console.log('reqs queue array = ' + reqsQueueArray[0].toString());
   
   if (!processing && reqsQueueArray.length != 0) {
   setInterval(processRequests, 3000);
@@ -342,8 +343,6 @@ exports.receive_url = function(req, res) {
 exports.receive_vid_url = function(req, res) {
 
   queueRequests(req, res);
-
-  console.log('reqs queue array = ' + reqsQueueArray[0].toString());
   
   if (!processing && reqsQueueArray.length != 0) {
   setInterval(processVidRequests, 3000);
