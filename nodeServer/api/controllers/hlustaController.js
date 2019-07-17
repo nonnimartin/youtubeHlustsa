@@ -199,15 +199,13 @@ function processRequests() {
     processing     = true;
 
     var currentReq = reqsQueueArray[0];
-
-    console.log('current req = ' + currentReq['req']);
-
     var req        = currentReq['req'];
     var res        = currentReq['res'];
     
 
     var new_task  = new Task(req.body);
-    var sent_body = req.body
+    var sent_body = req.body;
+    console.log('current req = ' + JSON.stringify(req.body));
     console.log(sent_body)
     var sent_url   = sent_body['url'];
     var fileName   = sent_body['name'];
@@ -277,14 +275,13 @@ function processVidRequests() {
     processing     = true;
 
     var currentReq = reqsQueueArray[0];
-    console.log('current req = ' + currentReq['req']);
-
     var req        = currentReq['req'];
     var res        = currentReq['res'];
     
 
     var new_task  = new Task(req.body);
     var sent_body = req.body
+    console.log('current req = ' + JSON.stringify(req.body));
     console.log(sent_body)
     var sent_url = sent_body['url']
     var fileName = sent_body['name']
