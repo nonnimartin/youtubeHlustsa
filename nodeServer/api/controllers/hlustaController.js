@@ -339,7 +339,8 @@ exports.receive_url = function(req, res) {
   queueRequests(req, res);
   
   if (!processing && reqsQueueArray.length != 0) {
-  setInterval(processRequests, 3000);
+  //setInterval(processRequests, 3000);
+    processRequests();
   }
 
 };
@@ -349,7 +350,8 @@ exports.receive_vid_url = function(req, res) {
   queueRequests(req, res);
   
   if (!processing && reqsQueueArray.length != 0) {
-  setInterval(processVidRequests, 3000);
+  //setInterval(processVidRequests, 3000);
+    processVidRequests();
   }
 
 };
