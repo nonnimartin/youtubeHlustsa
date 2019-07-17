@@ -173,8 +173,9 @@ function downloadVids(vidUrl, mp4Path, callback) {
 
 function queueRequests(req, res) {
 
-  console.log('req = ' + util.inspect(req, {showHidden: false, depth: 2}));
-  console.log('res = ' + util.inspect(res, {showHidden: false, depth: 2}));
+  //SPECIAL LOGGING VERBOSE
+  //console.log('req = ' + util.inspect(req, {showHidden: false, depth: 2}));
+  //console.log('res = ' + util.inspect(res, {showHidden: false, depth: 2}));
 
   var currentReqArray = {
     'req' : req,
