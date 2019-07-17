@@ -200,6 +200,8 @@ function processRequests() {
 
     var currentReq = reqsQueueArray[0];
 
+    console.log('current req = ' + currentReq['req']);
+
     var req        = currentReq['req'];
     var res        = currentReq['res'];
     
@@ -275,6 +277,7 @@ function processVidRequests() {
     processing     = true;
 
     var currentReq = reqsQueueArray[0];
+    console.log('current req = ' + currentReq['req']);
 
     var req        = currentReq['req'];
     var res        = currentReq['res'];
