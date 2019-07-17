@@ -189,6 +189,7 @@ function queueRequests(req, res) {
 function processRequests() {
 
   console.log('in the mp3 processing');
+  clearInterval(processRequests);
 
 
   while (reqsQueueArray.length > 0 && !processing) {
@@ -258,7 +259,6 @@ function processRequests() {
     });
    reqsQueueArray.shift();
    processing = false;
-   clearInterval(processRequests);
    return;
   }
 }
@@ -266,6 +266,7 @@ function processRequests() {
 function processVidRequests() {
 
   console.log('in the vid processing');
+  clearInterval(processVidRequests);
 
   while (reqsQueueArray.length > 0 && !processing) {
 
@@ -326,7 +327,6 @@ function processVidRequests() {
     });
    reqsQueueArray.shift();
    processing = false;
-   clearInterval(processVidRequests);
    return;
   }
 }
