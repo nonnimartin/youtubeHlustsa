@@ -14,8 +14,8 @@ function clearBackup() {
   //set local node.js server api
   var clearBackupUrl = "http://" + server + ":" + '3000' + "/urls/clear_backups/";
   var xmlHttp = new XMLHttpRequest();
-  xmlHttp.setRequestHeader('Access-Control-Allow-Origin', '*');
   xmlHttp.open( "GET", clearBackupUrl, true);
+  xmlHttp.setRequestHeader('Access-Control-Allow-Origin', '*');
   xmlHttp.send(null);
 };
 
