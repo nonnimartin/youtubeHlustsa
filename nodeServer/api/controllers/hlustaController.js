@@ -11,6 +11,7 @@ var Task       = mongoose.model('Tasks');
 const serve    = require('serve');
 //learning stand-in for finding why private account requests are denied
 const ytdl     = require('ytdl-core');
+const util = require('util');
 
 var statusFile         = 'status.json';
 var filesServed        = false;
@@ -18,8 +19,8 @@ var filesServed        = false;
 var reqsQueueArray    = [];
 var processing        = false;
 
-function writeMp4(fileName, buffer, options) {
-  fs.writeFile("/tmp/" + fileName + ".mp4", buffer, options, function(err) {
+function writeMp4(filePath, buffer, options) {
+  fs.writeFile(filePath, buffer, options, function(err) {
       if(err) {
           return console.log(err);
       }
@@ -60,17 +61,59 @@ function serveStatus() {
   }
 }
 
-function setStatus(status, fileName) {
+function getStatus(uuid){
+    
+    var statusFilePath = __dirname + "/../../status/" + statusFile;
+    //get existing status from file
+    var data = fs.readFileSync(statusFilePath, 'utf8');
+    var fileContent = JSON.parse(data);
+    var thisJobInfo = fileContent[uuid];
+    if (thisJobInfo == undefined){
+      return false;
+    }else{
+      return thisJobInfo.status;
+    }
 
-    //Write current status to json file for Chrome to check
-    var statusJSON = {
-      "status" : status,
-      "fileName" : fileName
-    };
+}
 
-    fs.writeFile(__dirname + "/../../status/" + statusFile, JSON.stringify(statusJSON), function(err) {
-    if (err) throw err;
+function setStatus(status, fileName, type, uuid) {
+
+     var dataObj = new Object();
+
+     var statusFilePath = __dirname + "/../../status/" + statusFile;
+     console.log('status file path = ' + statusFilePath);
+
+    //get existing status from file
+    fs.readFile(statusFilePath, 'utf8', function(err, data) {
+      if (err) throw err;
+      var fileContent = data;
+      console.log('reading file data: ' + data);
+
+      //parse json file to javascript object
+      console.log('data = ' + data);
+      if (data == null || data == undefined || data == '' || JSON.parse(data).status == 'startup') data = '{}';
+      dataObj = JSON.parse(data);
+
+      //Write current status to json file for Chrome to check
+      var statusJSON = {
+        "status" : status,
+        "fileName" : fileName,
+        "fileType" : type
+      };
+
+
+      //existing object
+      console.log('data obj before = ' + JSON.stringify(dataObj));
+      //write status json mapped to uuid
+      dataObj[uuid] = statusJSON;
+      console.log('data obj after = ' + JSON.stringify(dataObj));
+
+      console.log('data to write to file: ' + JSON.stringify(dataObj));
+
+      fs.writeFileSync(statusFilePath, JSON.stringify(dataObj));
+
     });
+
 }
 
 function deleteFile(filePath) {
@@ -79,6 +122,7 @@ function deleteFile(filePath) {
     console.log('Successfully deleted ' + filePath);
     });
 }
+
 function moveFile(fromPath, toPath) {
   fs.rename(fromPath, toPath, function (err) {
     if (err) throw err;
@@ -105,27 +149,33 @@ function getInfo(link, options, callback) {
 }
 
 function downloadVids(vidUrl, mp4Path, callback) {
+
+  console.log('vid url = ' + vidUrl);
+  console.log('vid mp4path = ' + mp4Path);
+
   //download video information and hold in variable
   var vidStream = ytdl(vidUrl, { filter: function(format) { return format.container === 'mp4'; } });
-  // function writeSteamToFile() {
-  //   vidStream.pipe(fs.createWriteStream(mp4Path));
-  // }
 
   vidStream.pipe(fs.createWriteStream(mp4Path));
 
   vidStream.on('end', () => {
     try {
+      console.log('got here in callback block');
       callback();
       
-    } catch (er) {
-      // uh oh! bad json!
-      console.log("bad something")
+    } catch (err) {
+      console.log(err);
+      console.log("bad thing");
     }
   })
 
 }
 
 function queueRequests(req, res) {
+
+  //SPECIAL LOGGING VERBOSE
+  //console.log('req = ' + util.inspect(req, {showHidden: false, depth: 2}));
+  //console.log('res = ' + util.inspect(res, {showHidden: false, depth: 2}));
 
   var currentReqArray = {
     'req' : req,
@@ -138,28 +188,26 @@ function queueRequests(req, res) {
 
 function processRequests() {
 
-
   while (reqsQueueArray.length > 0 && !processing) {
 
     processing     = true;
 
     var currentReq = reqsQueueArray[0];
-
     var req        = currentReq['req'];
     var res        = currentReq['res'];
     
 
     var new_task  = new Task(req.body);
-    var sent_body = req.body
-    console.log(sent_body)
-    var sent_url = sent_body['url']
-    var fileName = sent_body['name']
-    var youTubeUrl = sent_body['youTubeUrl']
-    console.log("Youtube url = " + youTubeUrl);
+    var sent_body = req.body;
+    var sent_url   = sent_body['url'];
+    var fileName   = sent_body['name'];
+    var youTubeUrl = sent_body['youTubeUrl'];
+    var jobUuid    = sent_body['jobUuid'];
     var task_id  = new_task.id
     new_task.url = sent_url
-    setStatus("processing", fileName);
+    setStatus("processing", fileName, 'mp3', jobUuid);
     serveStatus();
+
     new_task.save(function(err, task) {
       if (err)
         res.send(err);
@@ -167,6 +215,12 @@ function processRequests() {
     });
 
     var parsedUrl = url.parse(sent_url);
+
+    var status = getStatus(jobUuid)
+
+    console.log('status = ' + status);
+
+    if (status == 'processing' || status == 'done') continue;
 
     https.get(parsedUrl, function(res) {
         
@@ -187,27 +241,97 @@ function processRequests() {
             var mp3Path  = mp4Path.split(".")[0] + ".mp3";
 
             downloadVids(youTubeUrl, mp4Path, function(returnValue) {
-              console.log(returnValue);
               mp4ToMp3(mp4Path, function(responseVal) {
                 console.log("Response value: " + responseVal);
                 moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
-                setStatus("done", fileName);
+                setStatus("done", fileName, "mp3", jobUuid);
           })
         })
       });
     });
    reqsQueueArray.shift();
    processing = false;
+   return;
+  }
+}
+
+function processVidRequests() {
+
+  while (reqsQueueArray.length > 0 && !processing) {
+
+    processing     = true;
+
+    var currentReq = reqsQueueArray[0];
+    var req        = currentReq['req'];
+    var res        = currentReq['res'];
+    
+
+    var new_task  = new Task(req.body);
+    var sent_body = req.body;
+    var sent_url = sent_body['url'];
+    var fileName = sent_body['name'];
+    var youTubeUrl = sent_body['youTubeUrl'];
+    var jobUuid    = sent_body['jobUuid'];
+    var task_id  = new_task.id;
+    new_task.url = sent_url;
+    setStatus("processing", fileName, "mp4", jobUuid);
+    serveStatus();
+
+    new_task.save(function(err, task) {
+      if (err)
+        res.send(err);
+      res.json(task);
+    });
+
+    var parsedUrl = url.parse(sent_url);
+
+    var status = getStatus(jobUuid)
+
+    if (status == 'processing' || status == 'done') continue;
+
+    https.get(parsedUrl, function(res) {
+        
+        var data = [];
+
+        res.on('data', function(chunk) {
+            data.push(chunk);
+        }).on('end', function() {
+
+            var buffer = Buffer.concat(data);
+            var options = { flag : 'w' };
+            
+            console.log("Buffer size = " + buffer.byteLength);;
+
+            downloadVids(youTubeUrl, __dirname + "/../../vids/" + fileName + '.mp4', function(returnValue) {
+              setStatus("done", fileName, "mp4", jobUuid);
+        })
+      });
+    });
+   reqsQueueArray.shift();
+   processing = false;
+   return;
   }
 }
 
 //REST API functions
 exports.receive_url = function(req, res) {
 
+  console.log('definitely hit mp3 url endpoint');
+
   queueRequests(req, res);
   
   if (!processing && reqsQueueArray.length != 0) {
-  setInterval(processRequests, 3000);
+    processRequests();
+  }
+
+};
+
+exports.receive_vid_url = function(req, res) {
+  console.log('definitely hit vid url endpoint');
+  queueRequests(req, res);
+  
+  if (!processing && reqsQueueArray.length != 0) {
+    processVidRequests();
   }
 
 };
@@ -230,7 +354,7 @@ exports.clear_backups = function(req, res) {
 };
 
 exports.ready_status = function(req, res) {
-  setStatus('ready', '');
+  setStatus('ready', '', '', '');
 }
 
 exports.get_record = function(req, res) {

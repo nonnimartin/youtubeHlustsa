@@ -23,8 +23,11 @@ function serveFiles() {
   console.log("Files served: " + global.filesServed)
 
   if (!global.filesServed) {
-    const server = serve(__dirname + "/mp3s", {
+    const server     = serve(__dirname + "/mp3s", {
       port: 3001
+    })
+    const server_two = serve(__dirname + "/vids", {
+      port: 3003
     })
     global.filesServed = true;
   }
@@ -49,6 +52,7 @@ function serveStartupStatus() {
 
 closePort("3001");
 closePort("3002");
+closePort("3003");
 
 serveStartupStatus();
 serveFiles();

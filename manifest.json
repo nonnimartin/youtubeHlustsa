@@ -15,7 +15,8 @@
     "tabs",
     "downloads",
     "webNavigation",
-    "cookies"
+    "cookies",
+    "storage"
   ],
 
   "browser_action": {
