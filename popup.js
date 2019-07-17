@@ -12,7 +12,7 @@ readyStatusPort = configData.readyStatusPort;
 
 function clearBackup() {
   //set local node.js server api
-  var clearBackupUrl = "http://" + server + ":" + readyStatusPort + "/urls/clear_backups/";
+  var clearBackupUrl = "http://" + server + ":" + '3000' + "/urls/clear_backups/";
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.setRequestHeader('Access-Control-Allow-Origin', '*');
   xmlHttp.open( "GET", clearBackupUrl, true);
