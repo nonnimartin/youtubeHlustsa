@@ -137,8 +137,9 @@ function processFileStatus() {
     else if (fileType == 'mp4'){
       console.log('downloading mp4 with uuid ' + nextItemUuid);
       processing = true;
-      chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'});
-      
+      chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'}, function(res){
+        deleteVidDownload("http://" + server + ":" + readyStatusPort + "/urls/delete_vid/", fileName + ".mp4");
+      });
       chrome.storage.sync.clear(function() {
         var error = chrome.runtime.lastError;
         if (error) {
@@ -146,7 +147,6 @@ function processFileStatus() {
         }
       });
       localStorage.removeItem('nextItem');
-      deleteVidDownload("http://" + server + ":" + readyStatusPort + "/delete_vid/", fileName + ".mp4");
       processing = false;
     }
 
@@ -159,10 +159,10 @@ function processFileStatus() {
 function deleteVidDownload(endpoint, fileName){
     //send request to /delete_vid endpoint
     var xhttp = new XMLHttpRequest();
-    xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
     xhttp.open("POST", endpoint, true);
-    xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xmlhttp.send(JSON.stringify({ "deleteFile" : fileName }));
+    xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhttp.send(JSON.stringify({ "deleteFile" : fileName }));
     return;
 }
 
