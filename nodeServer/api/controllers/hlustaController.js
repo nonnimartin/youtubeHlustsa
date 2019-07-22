@@ -336,6 +336,22 @@ exports.receive_vid_url = function(req, res) {
 
 };
 
+exports.delete_vid = function(req, res) {
+
+  var vidsDir = __dirname + "/../../vids/";
+
+  console.log('get req body');
+  var reqBody    = req.body;
+  var thisFile = reqBody['deleteFile']; 
+  
+  //delete the file
+  var deletePath = vidsDir + thisFile;
+  console.log('delete path = ' + deletePath);
+  deleteFile(deletePath);
+  return;
+
+};
+
 
 exports.clear_backups = function(req, res) {
 
