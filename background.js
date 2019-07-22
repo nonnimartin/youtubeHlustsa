@@ -149,14 +149,22 @@ function processFileStatus() {
       processing = false;
     }
 
-    var xhttp = new XMLHttpRequest();
-    xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
-    xhttp.open("GET", "http://" + server + ":" + readyStatusPort + "/urls/ready_status", true);
-    xhttp.send(null);
+    deleteVidDownload("http://" + server + ":" + vidsDownloadPort + "/delete_vid/", fileName + ".mp4");
+
     return "done";
   }
   return;
   
+}
+
+function deleteVidDownload(endpoint, fileName){
+    //send request to /delete_vid endpoint
+    var xhttp = new XMLHttpRequest();
+    xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+    xhttp.open("POST", endpoint, true);
+    xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xmlhttp.send(JSON.stringify({ "deleteFile" : fileName }));
+    return;
 }
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
