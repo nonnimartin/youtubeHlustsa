@@ -149,7 +149,7 @@ function processFileStatus() {
       processing = false;
     }
 
-    deleteVidDownload("http://" + server + ":" + vidsDownloadPort + "/delete_vid/", fileName + ".mp4");
+    deleteVidDownload("http://" + server + ":" + readyStatusPort + "/delete_vid/", fileName + ".mp4");
 
     return "done";
   }
