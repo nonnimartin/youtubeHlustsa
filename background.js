@@ -146,10 +146,9 @@ function processFileStatus() {
         }
       });
       localStorage.removeItem('nextItem');
+      deleteVidDownload("http://" + server + ":" + readyStatusPort + "/delete_vid/", fileName + ".mp4");
       processing = false;
     }
-
-    deleteVidDownload("http://" + server + ":" + readyStatusPort + "/delete_vid/", fileName + ".mp4");
 
     return "done";
   }
