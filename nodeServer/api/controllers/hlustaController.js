@@ -342,10 +342,10 @@ exports.delete_vid = function(req, res) {
 
   console.log('get req body');
   var reqBody    = req.body;
-  var deleteFile = reqBody['deleteFile']; 
+  var thisFile = reqBody['deleteFile']; 
   
   //delete the file
-  var deletePath = vidsDir + deleteFile;
+  var deletePath = vidsDir + thisFile;
   console.log('delete path = ' + deletePath);
   deleteFile(deletePath);
   return;
