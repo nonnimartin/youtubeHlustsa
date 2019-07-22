@@ -21,7 +21,6 @@ function checkProcessStatus() {
   var xhttp = new XMLHttpRequest();
   xhttp.open("GET", 'http://' + server + ':' + statusJsonPort + '/status.json', false);
   xhttp.send(null);
-  console.log(xhttp.responseText);
   processResponse = JSON.parse(xhttp.responseText);
 }
 
@@ -30,9 +29,6 @@ function getJobs() {
     //like {'jobname.extension' : 'uuid'}
     return localStorage.getItem('jobsMap');
 }
-
-//these methods may be unnecessary and handled in the content file
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 function removeJob(obj, uuid){
    for (key in obj) {
@@ -54,7 +50,6 @@ function findNextJob(clientJobsList, serverJobsList){
   //return first client job uuid that's in server jobs list
   for (job in clientJobsList){
     var thisUuid = clientJobsList[job];
-    console.log('trying to match ' + thisUuid.toString() + ' ' + 'in ' + JSON.stringify(serverJobsList));
     if (thisUuid in serverJobsList) return thisUuid;
   }
   //if none match return false
@@ -101,11 +96,9 @@ function processFileStatus() {
   //added status change to keep from downloading temporarily
 
   var nextItemUuid = localStorage.getItem('nextItem');
-  console.log('next item = ' + nextItemUuid);
 
   //process reponse variable works
   var thisJobRes     =  processResponse[nextItemUuid];
-  console.log('this job res = ' + thisJobRes);
   var thisJobResObj  = thisJobRes;
   var status         = thisJobResObj['status'];
   var fileName       = thisJobResObj['fileName'];
@@ -121,7 +114,6 @@ function processFileStatus() {
 
   if (status == 'done') {
     if (fileType == 'mp3'){
-      console.log('downloading mp3 with uuid ' + nextItemUuid);
       processing = true;
       chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
 
@@ -135,7 +127,6 @@ function processFileStatus() {
       processing = false;
     }
     else if (fileType == 'mp4'){
-      console.log('downloading mp4 with uuid ' + nextItemUuid);
       processing = true;
       chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'}, function(res){
         deleteVidDownload("http://" + server + ":" + readyStatusPort + "/urls/delete_vid/", fileName + ".mp4");
