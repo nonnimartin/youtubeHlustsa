@@ -128,8 +128,16 @@ function processFileStatus() {
     }
     else if (fileType == 'mp4'){
       processing = true;
+
       chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'}, function(res){
-        deleteVidDownload("http://" + server + ":" + readyStatusPort + "/urls/delete_vid/", fileName + ".mp4");
+        //add listener for download completion
+        chrome.downloads.onChanged.addListener(function onChanged({state}) {
+           if (state.current == "complete"){
+              chrome.downloads.onChanged.removeListener(onChanged);
+              deleteVidDownload("http://" + server + ":" + readyStatusPort + "/urls/delete_vid/", fileName + ".mp4");
+           }
+        });
+        
       });
       chrome.storage.sync.clear(function() {
         var error = chrome.runtime.lastError;
@@ -146,6 +154,14 @@ function processFileStatus() {
   return;
   
 }
+
+  //listen for change in state of download
+  function onChanged({state}) {
+    if (state && state.current !== 'in_progress') {
+      console.log('state current is = ' + state.current.toString());
+      next();
+    }
+  }
 
 function deleteVidDownload(endpoint, fileName){
     //send request to /delete_vid endpoint
@@ -172,7 +188,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 //Send most recent youtube URL to popup.js when requested
 chrome.runtime.onMessage.addListener(
     function(message, sender, sendResponse) {
-        console.log("Backround script listener received message type = " + message.type);
+        //console.log("Backround script listener received message type = " + message.type);
         switch(message.type) {
             case "getCurrentUrl":
         
