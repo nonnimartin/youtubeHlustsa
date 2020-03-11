@@ -1,5 +1,5 @@
-//Check localhost process status every second
-setInterval(checkProcessStatus, 1000);
+//Check localhost process status every two seconds
+setInterval(checkProcessStatus, 2000);
 
 config = '{"server":"ec2-34-212-12-236.us-west-2.compute.amazonaws.com", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000", "vidsDownloadPort":"3003"}';
 
@@ -202,7 +202,8 @@ chrome.runtime.onMessage.addListener(
                 sendResponse(currentJSON);
                 break;
             case "processStatus":
-                var processInterval = setInterval(function() {var status = processFileStatus(); if (status == "done") {clearInterval(processInterval);}}, 1000);
+                //check process status every two seconds
+                var processInterval = setInterval(function() {var status = processFileStatus(); if (status == "done") {clearInterval(processInterval);}}, 2000);
                 break;
             default:
                 console.error("Unrecognised message: ", message);

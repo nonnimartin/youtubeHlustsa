@@ -2,14 +2,10 @@ $(document).ready(function () {
 
 function checkLocation() {
     var pathname        = window.location;
-    var youtubeId       = pathname.toString().split("watch?v=")[1]
-
-    YoutubeVideo(youtubeId, function(video){
-        mp4 = video.getSource("video/mp4", "medium");
-        localStorage.setItem("googleVidUrl", mp4.url);
-        localStorage.setItem("youTubeTitle",   document.title.replace(/\s+/g, ''))
-        localStorage.setItem("youTubeUrl", pathname);
-    });
+    console.log('path name = ' + pathname);
+    localStorage.setItem("googleVidUrl", pathname);
+    localStorage.setItem("youTubeTitle", document.title.replace(/\s+/g, ''))
+    localStorage.setItem("youTubeUrl", pathname);
 }
 
 function getJobs() {
