@@ -114,7 +114,6 @@ function processFileStatus() {
 
   if (status == 'done') {
     if (fileType == 'mp3'){
-      console.log('got to done in mp3');
       processing = true;
       chrome.downloads.download({url: "http://" + server + ":" + downloadPort + "/" + fileName + ".mp3", filename : fileName + '.mp3'});
 
@@ -129,7 +128,7 @@ function processFileStatus() {
     }
     else if (fileType == 'mp4'){
       processing = true;
-
+      
       chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'}, function(res){
         //add listener for download completion
         chrome.downloads.onChanged.addListener(function onChanged({state}) {
@@ -159,7 +158,6 @@ function processFileStatus() {
   //listen for change in state of download
   function onChanged({state}) {
     if (state && state.current !== 'in_progress') {
-      console.log('state current is = ' + state.current.toString());
       next();
     }
   }
@@ -189,7 +187,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 //Send most recent youtube URL to popup.js when requested
 chrome.runtime.onMessage.addListener(
     function(message, sender, sendResponse) {
-        //console.log("Backround script listener received message type = " + message.type);
         switch(message.type) {
             case "getCurrentUrl":
         
