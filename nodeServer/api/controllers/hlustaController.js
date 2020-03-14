@@ -5,13 +5,15 @@ var fs         = require('fs');
 var https      = require('https');
 var url        = require('url');
 var request    = require('request');
+var download   = require('download');
 //var mongoose   = require('mongoose');
-var ffmpeg     = require ('fluent-ffmpeg');
+var ffmpeg        = require ('fluent-ffmpeg');
 //var Task       = mongoose.model('Tasks');
-const serve    = require('serve');
+const serve       = require('serve');
 //learning stand-in for finding why private account requests are denied
-const ytdl     = require('ytdl-core');
-const util = require('util');
+//const ytdl        = require('ytdl-core');
+const util        = require('util');
+const ps          = require('python-shell');
 
 var statusFile         = 'status.json';
 var filesServed        = false;
@@ -153,21 +155,32 @@ function downloadVids(vidUrl, mp4Path, callback) {
   console.log('vid url = ' + vidUrl);
   console.log('vid mp4path = ' + mp4Path);
 
+  var options = {
+    args: [vidUrl]
+  };
+
+  ps.PythonShell.run('./api/controllers/call_pytube.py', options, function (err, results) {
+    if (err) throw err;
+    //console.log('result = ' + results);
+    var actualYoutubeVideoLocation = results;
+    callback(actualYoutubeVideoLocation);
+  });
+
   //download video information and hold in variable
-  var vidStream = ytdl(vidUrl, { filter: function(format) { return format.container === 'mp4'; } });
+  //var vidStream = ytdl(vidUrl, { filter: function(format) { return format.container === 'mp4'; } });
 
-  vidStream.pipe(fs.createWriteStream(mp4Path));
+  //vidStream.pipe(fs.createWriteStream(mp4Path));
 
-  vidStream.on('end', () => {
-    try {
-      console.log('got here in callback block');
-      callback();
+  // vidStream.on('end', () => {
+  //   try {
+  //     console.log('got here in callback block');
+  //     callback();
       
-    } catch (err) {
-      console.log(err);
-      console.log("bad thing");
-    }
-  })
+  //   } catch (err) {
+  //     console.log(err);
+  //     console.log("bad thing");
+  //   }
+  // })
 
 }
 
@@ -195,6 +208,9 @@ function processRequests() {
     var currentReq = reqsQueueArray[0];
     var req        = currentReq['req'];
     var res        = currentReq['res'];
+
+    //console.log('reqsqueue array :');
+    //console.log(req);
     
 
     //var new_task  = new Task(req.body);
@@ -241,14 +257,18 @@ function processRequests() {
             var mp3Path  = mp4Path.split(".")[0] + ".mp3";
 
             downloadVids(youTubeUrl, mp4Path, function(returnValue) {
-              mp4ToMp3(mp4Path, function(responseVal) {
-                console.log("Response value: " + responseVal);
-                moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
-                setStatus("done", fileName, "mp3", jobUuid);
-          })
+              //console.log('return value = ' + returnValue);
+              download(returnValue.toString()).then(data => {
+                fs.writeFileSync(mp4Path, data);
+                mp4ToMp3(mp4Path, function(responseVal) {
+                  console.log("Response value: " + responseVal);
+                  moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
+                  setStatus("done", fileName, "mp3", jobUuid);
+                })
+              });
+            });
         })
       });
-    });
    reqsQueueArray.shift();
    processing = false;
    return;
@@ -316,7 +336,7 @@ function processVidRequests() {
 //REST API functions
 exports.receive_url = function(req, res) {
 
-  console.log('definitely hit mp3 url endpoint');
+  console.log('reqs array = ' + JSON.stringify(reqsQueueArray));
 
   queueRequests(req, res);
   
@@ -327,10 +347,10 @@ exports.receive_url = function(req, res) {
 };
 
 exports.receive_vid_url = function(req, res) {
-  console.log('definitely hit vid url endpoint');
   queueRequests(req, res);
   
   if (!processing && reqsQueueArray.length != 0) {
+    console.log('reqs array = ' + JSON.stringify(reqsQueueArray));
     processVidRequests();
   }
 

@@ -2,9 +2,8 @@ $(document).ready(function () {
 
 function checkLocation() {
     var pathname        = window.location;
-    console.log('path name = ' + pathname);
     localStorage.setItem("googleVidUrl", pathname);
-    localStorage.setItem("youTubeTitle", document.title.replace(/\s+/g, ''))
+    localStorage.setItem("youTubeTitle", document.title.replace(/\s+/g, ""));
     localStorage.setItem("youTubeUrl", pathname);
 }
 
@@ -63,7 +62,6 @@ setInterval(checkLocation, 300);
                 var googleVidUrl   = localStorage.getItem("googleVidUrl");
                 var youTubeTitle   = localStorage.getItem("youTubeTitle");
                 var youTubeUrl     = localStorage.getItem("youTubeUrl");
-
 
                 //create job
                 var uuid = createJob(youTubeTitle, 'mp3');
