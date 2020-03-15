@@ -128,10 +128,6 @@ function downloadVids(vidUrl, mp4Path, callback) {
 
 function queueRequests(req, res) {
 
-  //SPECIAL LOGGING VERBOSE
-  //console.log('req = ' + util.inspect(req, {showHidden: false, depth: 2}));
-  //console.log('res = ' + util.inspect(res, {showHidden: false, depth: 2}));
-
   var currentReqArray = {
     'req' : req,
     'res' : res
@@ -208,15 +204,12 @@ function processVidRequests() {
 
     var currentReq = reqsQueueArray[0];
     var req        = currentReq['req'];
-    var res        = currentReq['res'];
-    
-
-    //var new_task  = new Task(req.body);
     var sent_body = req.body;
     var sent_url = sent_body['url'];
     var fileName = sent_body['name'];
     var youTubeUrl = sent_body['youTubeUrl'];
     var jobUuid    = sent_body['jobUuid'];
+    
     setStatus("processing", fileName, "mp4", jobUuid);
     serveStatus();
 
