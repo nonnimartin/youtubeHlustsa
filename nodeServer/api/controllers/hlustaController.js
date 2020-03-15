@@ -1,9 +1,9 @@
 'use strict';
 
-var fs         = require('fs');
-var https      = require('https');
-var url        = require('url');
-var download   = require('download');
+var fs            = require('fs');
+var https         = require('https');
+var url           = require('url');
+var download      = require('download');
 var ffmpeg        = require ('fluent-ffmpeg');
 const serve       = require('serve');
 const ps          = require('python-shell');
@@ -58,7 +58,6 @@ function getStatus(uuid){
     }else{
       return thisJobInfo.status;
     }
-
 }
 
 function setStatus(status, fileName, type, uuid) {
@@ -86,14 +85,8 @@ function setStatus(status, fileName, type, uuid) {
         "fileType" : type
       };
 
-
-      //existing object
-      console.log('data obj before = ' + JSON.stringify(dataObj));
       //write status json mapped to uuid
       dataObj[uuid] = statusJSON;
-      console.log('data obj after = ' + JSON.stringify(dataObj));
-
-      console.log('data to write to file: ' + JSON.stringify(dataObj));
 
       fs.writeFileSync(statusFilePath, JSON.stringify(dataObj));
 
@@ -260,8 +253,6 @@ function processVidRequests() {
 
 //REST API functions
 exports.receive_url = function(req, res) {
-
-  console.log('reqs array = ' + JSON.stringify(reqsQueueArray));
 
   queueRequests(req, res);
   
