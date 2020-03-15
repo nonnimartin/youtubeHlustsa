@@ -2,8 +2,8 @@
   "manifest_version": 2,
 
   "name": "juche MP3 from Youtube",
-  "description": "MP3s for the motherland",
-  "version": "2.0",
+  "description": "MP3s Freed from their Chains",
+  "version": "3.0",
 
   "icons": {
     "48": "icon.png"
@@ -27,7 +27,7 @@
  "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],
-      "js": ["jquery-3.2.1.min.js", "youtube-video/youtube-video.js", "content.js"]
+      "js": ["jquery-3.2.1.min.js", "content.js"]
     }
   ],
 

@@ -1,5 +1,5 @@
-//Check localhost process status every second
-setInterval(checkProcessStatus, 1000);
+//Check localhost process status every two seconds
+setInterval(checkProcessStatus, 2000);
 
 config = '{"server":"ec2-34-212-12-236.us-west-2.compute.amazonaws.com", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000", "vidsDownloadPort":"3003"}';
 
@@ -103,7 +103,6 @@ function processFileStatus() {
   var status         = thisJobResObj['status'];
   var fileName       = thisJobResObj['fileName'];
   var fileType       = thisJobResObj.fileType;
-  var fileType       = thisJobResObj.fileType;
 
   if (status == 'processing') {
     chrome.browserAction.setPopup({popup: "popupDisabledBoth.html"});
@@ -128,7 +127,7 @@ function processFileStatus() {
     }
     else if (fileType == 'mp4'){
       processing = true;
-
+      
       chrome.downloads.download({url: "http://" + server + ":" + vidsDownloadPort + "/" + fileName + ".mp4", filename : fileName + '.mp4'}, function(res){
         //add listener for download completion
         chrome.downloads.onChanged.addListener(function onChanged({state}) {
@@ -158,7 +157,6 @@ function processFileStatus() {
   //listen for change in state of download
   function onChanged({state}) {
     if (state && state.current !== 'in_progress') {
-      console.log('state current is = ' + state.current.toString());
       next();
     }
   }
@@ -188,7 +186,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 //Send most recent youtube URL to popup.js when requested
 chrome.runtime.onMessage.addListener(
     function(message, sender, sendResponse) {
-        //console.log("Backround script listener received message type = " + message.type);
         switch(message.type) {
             case "getCurrentUrl":
         
@@ -202,7 +199,8 @@ chrome.runtime.onMessage.addListener(
                 sendResponse(currentJSON);
                 break;
             case "processStatus":
-                var processInterval = setInterval(function() {var status = processFileStatus(); if (status == "done") {clearInterval(processInterval);}}, 1000);
+                //check process status every two seconds
+                var processInterval = setInterval(function() {var status = processFileStatus(); if (status == "done") {clearInterval(processInterval);}}, 2000);
                 break;
             default:
                 console.error("Unrecognised message: ", message);

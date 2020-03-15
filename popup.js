@@ -23,6 +23,9 @@ function postUrl(theUrl, fileName, youTubeUrl, isVideo, jobUuid) {
     
     var nodeServerUrl;
     var extension;
+    console.log('client params = ');
+    console.log(theUrl + ' ' + fileName + ' ' + youTubeUrl);
+
     //set local node.js server location
     if (isVideo){
       extension = 'mp4';
@@ -71,7 +74,7 @@ function getMp3() {
             console.log("Google video URL is " + googleVidUrl + "and title is " + youTubeTitle);
 
             //Send google video URL and filename to node.js server for processing
-            postUrl(googleVidUrl, youTubeTitle, youTubeUrl, false, jobUuid);
+            postUrl(googleVidUrl, youTubeTitle, googleVidUrl, false, jobUuid);
             checkProcessStatus();
         });
     })
@@ -99,7 +102,7 @@ function getVid() {
             console.log("youtubeUrl = " + youTubeUrl);
             console.log("Google video URL is " + googleVidUrl + "and title is " + youTubeTitle);
             //Send google video URL and filename to node.js server for processing
-            postUrl(googleVidUrl, youTubeTitle, youTubeUrl, true, jobUuid);
+            postUrl(googleVidUrl, youTubeTitle, googleVidUrl, true, jobUuid);
             checkProcessStatus();
         });
     })

@@ -1,12 +1,12 @@
 var express = require('express'),
   app = express(),
   port = process.env.PORT || 3000,
-  mongoose = require('mongoose'),
-  Task = require('./api/models/hlustaModel'),
+  //mongoose = require('mongoose'),
+  //Task = require('./api/models/hlustaModel'),
   bodyParser = require('body-parser');
   
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/hlustaDB'); 
+//mongoose.Promise = global.Promise;
+//mongoose.connect('mongodb://localhost/hlustaDB'); 
 var serve = require('serve');
 var fs    = require('fs');
 var exec = require('child_process').exec;

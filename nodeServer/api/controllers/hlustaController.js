@@ -1,32 +1,17 @@
 'use strict';
 
-var line       = "================================="
-var fs         = require('fs');
-var https      = require('https');
-var url        = require('url');
-var request    = require('request');
-var mongoose   = require('mongoose');
-var ffmpeg     = require ('fluent-ffmpeg');
-var Task       = mongoose.model('Tasks');
-const serve    = require('serve');
-//learning stand-in for finding why private account requests are denied
-const ytdl     = require('ytdl-core');
-const util = require('util');
+var fs            = require('fs');
+var https         = require('https');
+var url           = require('url');
+var download      = require('download');
+var ffmpeg        = require ('fluent-ffmpeg');
+const serve       = require('serve');
+const ps          = require('python-shell');
 
 var statusFile         = 'status.json';
-var filesServed        = false;
 
 var reqsQueueArray    = [];
 var processing        = false;
-
-function writeMp4(filePath, buffer, options) {
-  fs.writeFile(filePath, buffer, options, function(err) {
-      if(err) {
-          return console.log(err);
-      }
-      console.log("The file was saved!");
-  }); 
-}
 
 function mp4ToMp3(mp4Path, callback) {
   var mp3Path = mp4Path.split('.')[0] + '.mp3';
@@ -73,7 +58,6 @@ function getStatus(uuid){
     }else{
       return thisJobInfo.status;
     }
-
 }
 
 function setStatus(status, fileName, type, uuid) {
@@ -101,14 +85,8 @@ function setStatus(status, fileName, type, uuid) {
         "fileType" : type
       };
 
-
-      //existing object
-      console.log('data obj before = ' + JSON.stringify(dataObj));
       //write status json mapped to uuid
       dataObj[uuid] = statusJSON;
-      console.log('data obj after = ' + JSON.stringify(dataObj));
-
-      console.log('data to write to file: ' + JSON.stringify(dataObj));
 
       fs.writeFileSync(statusFilePath, JSON.stringify(dataObj));
 
@@ -131,51 +109,24 @@ function moveFile(fromPath, toPath) {
   })
 }
 
-function getInfo(link, options, callback) {
-  if (typeof options === 'function') {
-    callback = options;
-    options = {};
-  } else if (!options) {
-    options = {};
-  }
-  if (!callback) {
-    return new Promise(function(resolve, reject) {
-      getInfo(link, options, function(err, info) {
-        if (err) return reject(err);
-        resolve(info);
-      });
-    });
-  }
-}
-
 function downloadVids(vidUrl, mp4Path, callback) {
 
   console.log('vid url = ' + vidUrl);
   console.log('vid mp4path = ' + mp4Path);
 
-  //download video information and hold in variable
-  var vidStream = ytdl(vidUrl, { filter: function(format) { return format.container === 'mp4'; } });
+  var options = {
+    args: [vidUrl]
+  };
 
-  vidStream.pipe(fs.createWriteStream(mp4Path));
-
-  vidStream.on('end', () => {
-    try {
-      console.log('got here in callback block');
-      callback();
-      
-    } catch (err) {
-      console.log(err);
-      console.log("bad thing");
-    }
-  })
+  ps.PythonShell.run('./api/controllers/call_pytube.py', options, function (err, results) {
+    if (err) throw err;
+    var actualYoutubeVideoLocation = results;
+    callback(actualYoutubeVideoLocation);
+  });
 
 }
 
 function queueRequests(req, res) {
-
-  //SPECIAL LOGGING VERBOSE
-  //console.log('req = ' + util.inspect(req, {showHidden: false, depth: 2}));
-  //console.log('res = ' + util.inspect(res, {showHidden: false, depth: 2}));
 
   var currentReqArray = {
     'req' : req,
@@ -194,31 +145,18 @@ function processRequests() {
 
     var currentReq = reqsQueueArray[0];
     var req        = currentReq['req'];
-    var res        = currentReq['res'];
-    
-
-    var new_task  = new Task(req.body);
+     
     var sent_body = req.body;
     var sent_url   = sent_body['url'];
     var fileName   = sent_body['name'];
     var youTubeUrl = sent_body['youTubeUrl'];
     var jobUuid    = sent_body['jobUuid'];
-    var task_id  = new_task.id
-    new_task.url = sent_url
+
     setStatus("processing", fileName, 'mp3', jobUuid);
     serveStatus();
 
-    new_task.save(function(err, task) {
-      if (err)
-        res.send(err);
-      res.json(task);
-    });
-
     var parsedUrl = url.parse(sent_url);
-
     var status = getStatus(jobUuid)
-
-    console.log('status = ' + status);
 
     if (status == 'processing' || status == 'done') continue;
 
@@ -241,14 +179,17 @@ function processRequests() {
             var mp3Path  = mp4Path.split(".")[0] + ".mp3";
 
             downloadVids(youTubeUrl, mp4Path, function(returnValue) {
-              mp4ToMp3(mp4Path, function(responseVal) {
-                console.log("Response value: " + responseVal);
-                moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
-                setStatus("done", fileName, "mp3", jobUuid);
-          })
+              download(returnValue.toString()).then(data => {
+                fs.writeFileSync(mp4Path, data);
+                mp4ToMp3(mp4Path, function(responseVal) {
+                  console.log("Response value: " + responseVal);
+                  moveFile(mp3Path, __dirname + "/../../mp3s/" + fileName + ".mp3");
+                  setStatus("done", fileName, "mp3", jobUuid);
+                })
+              });
+            });
         })
       });
-    });
    reqsQueueArray.shift();
    processing = false;
    return;
@@ -263,25 +204,14 @@ function processVidRequests() {
 
     var currentReq = reqsQueueArray[0];
     var req        = currentReq['req'];
-    var res        = currentReq['res'];
-    
-
-    var new_task  = new Task(req.body);
     var sent_body = req.body;
     var sent_url = sent_body['url'];
     var fileName = sent_body['name'];
     var youTubeUrl = sent_body['youTubeUrl'];
     var jobUuid    = sent_body['jobUuid'];
-    var task_id  = new_task.id;
-    new_task.url = sent_url;
+    
     setStatus("processing", fileName, "mp4", jobUuid);
     serveStatus();
-
-    new_task.save(function(err, task) {
-      if (err)
-        res.send(err);
-      res.json(task);
-    });
 
     var parsedUrl = url.parse(sent_url);
 
@@ -296,16 +226,17 @@ function processVidRequests() {
         res.on('data', function(chunk) {
             data.push(chunk);
         }).on('end', function() {
-
-            var buffer = Buffer.concat(data);
-            var options = { flag : 'w' };
             
-            console.log("Buffer size = " + buffer.byteLength);;
+            var mp4Path =  "/tmp/" + fileName + '.mp4';
 
-            downloadVids(youTubeUrl, __dirname + "/../../vids/" + fileName + '.mp4', function(returnValue) {
-              setStatus("done", fileName, "mp4", jobUuid);
-        })
-      });
+            downloadVids(youTubeUrl, mp4Path, function(returnValue) {
+              download(returnValue.toString()).then(data => {
+                fs.writeFileSync(mp4Path, data);
+                moveFile(mp4Path, __dirname + "/../../vids/" + fileName + ".mp4");
+                setStatus("done", fileName, "mp4", jobUuid);
+              });
+            })
+        });
     });
    reqsQueueArray.shift();
    processing = false;
@@ -316,8 +247,6 @@ function processVidRequests() {
 //REST API functions
 exports.receive_url = function(req, res) {
 
-  console.log('definitely hit mp3 url endpoint');
-
   queueRequests(req, res);
   
   if (!processing && reqsQueueArray.length != 0) {
@@ -327,7 +256,6 @@ exports.receive_url = function(req, res) {
 };
 
 exports.receive_vid_url = function(req, res) {
-  console.log('definitely hit vid url endpoint');
   queueRequests(req, res);
   
   if (!processing && reqsQueueArray.length != 0) {
@@ -371,45 +299,5 @@ exports.clear_backups = function(req, res) {
 
 exports.ready_status = function(req, res) {
   setStatus('ready', '', '', '');
-}
-
-exports.get_record = function(req, res) {
-  
-  var sent_id = req.params.id
-
-  Task.findById(sent_id, function(err, task) {
-    if (err)
-      res.send(err);
-    res.json(task);
-  });
-};
-
-exports.get_records = function(req, res) {
-  Task.find({}, function(err, task) {
-    if (err)
-      res.send(err);
-    res.json(task);
-  });
-};
-
-exports.create_a_task = function(req, res) {
-  var new_task = new Task(req.body);
-  new_task.save(function(err, task) {
-    if (err)
-      res.send(err);
-    res.json(task);
-  });
-};
-
-
-exports.delete_a_task = function(req, res) {
-
-  Task.remove({
-    _id: req.params.taskId
-  }, function(err, task) {
-    if (err)
-      res.send(err);
-    res.json({ message: 'Task successfully deleted' });
-  });
 };
 

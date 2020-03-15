@@ -2,14 +2,9 @@ $(document).ready(function () {
 
 function checkLocation() {
     var pathname        = window.location;
-    var youtubeId       = pathname.toString().split("watch?v=")[1]
-
-    YoutubeVideo(youtubeId, function(video){
-        mp4 = video.getSource("video/mp4", "medium");
-        localStorage.setItem("googleVidUrl", mp4.url);
-        localStorage.setItem("youTubeTitle",   document.title.replace(/\s+/g, ''))
-        localStorage.setItem("youTubeUrl", pathname);
-    });
+    localStorage.setItem("googleVidUrl", pathname);
+    localStorage.setItem("youTubeTitle", document.title.replace(/\s+/g, ""));
+    localStorage.setItem("youTubeUrl", pathname);
 }
 
 function getJobs() {
@@ -67,7 +62,6 @@ setInterval(checkLocation, 300);
                 var googleVidUrl   = localStorage.getItem("googleVidUrl");
                 var youTubeTitle   = localStorage.getItem("youTubeTitle");
                 var youTubeUrl     = localStorage.getItem("youTubeUrl");
-
 
                 //create job
                 var uuid = createJob(youTubeTitle, 'mp3');
