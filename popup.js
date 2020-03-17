@@ -1,6 +1,6 @@
 var currentStatus = {};
 
-config = '{"server":"ec2-34-212-12-236.us-west-2.compute.amazonaws.com", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000", "vidsDownloadPort":"3003"}';
+config = '{"server":"ec2-34-220-122-181.us-west-2.compute.amazonaws.com", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000", "vidsDownloadPort":"3003"}';
 
 //read properties from file
 configData = JSON.parse(config);
@@ -63,7 +63,7 @@ function getMp3() {
             currentStatus  = response.statusJSON;
     });
     //Ask for contentJSON data from content.js
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    chrome.tabs.query({active: true, currentWindow: true, 'lastFocusedWindow': true}, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {type: "getContentJSON"}, function(contentJSON) {
             var googleVidUrl = contentJSON["googleVidUrl"];
             var youTubeTitle = contentJSON["youTubeTitle"];
@@ -92,7 +92,7 @@ function getVid() {
             currentStatus  = response.statusJSON;
     });
     //Ask for contentJSON data from content.js
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    chrome.tabs.query({active: true, currentWindow: true, 'lastFocusedWindow': true}, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {type: "getContentJSONVid"}, function(contentJSON) {
             var googleVidUrl = contentJSON["googleVidUrl"];
             var youTubeTitle = contentJSON["youTubeTitle"];

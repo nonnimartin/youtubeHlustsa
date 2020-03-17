@@ -1,8 +1,8 @@
 //Check localhost process status every two seconds
 setInterval(checkProcessStatus, 2000);
+var nextItem = localStorage.removeItem('nextItem');
 
-config = '{"server":"ec2-34-212-12-236.us-west-2.compute.amazonaws.com", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000", "vidsDownloadPort":"3003"}';
-
+config = '{"server":"ec2-34-220-122-181.us-west-2.compute.amazonaws.com", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000", "vidsDownloadPort":"3003"}';
 //read properties from file
 configData = JSON.parse(config);
 
@@ -61,7 +61,7 @@ function processFileStatus() {
   var nextItem = localStorage.getItem('nextItem');
 
   //check if next job is stored, and set if not
-  if (nextItem == null || nextItem == undefined){
+  if (nextItem == null || typeof nextItem == 'undefined'){
 
     chrome.storage.sync.get(['jobsMap'], function(items) {
 
