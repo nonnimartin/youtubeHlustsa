@@ -1,6 +1,6 @@
 var currentStatus = {};
 
-config = '{"server":"ec2-34-220-122-181.us-west-2.compute.amazonaws.com", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000", "vidsDownloadPort":"3003"}';
+config = '{"server":"ec2-34-217-59-49.us-west-2.compute.amazonaws.com", "statusJsonPort":"3002", "downloadPort":"3001", "readyStatusPort":"3000", "vidsDownloadPort":"3003"}';
 
 //read properties from file
 configData = JSON.parse(config);
