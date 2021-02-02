@@ -9,7 +9,7 @@ REMOVING ENDLESSHACK
 
 On server install pytube3 with:
 
-`pip3 install pytube3`
+`pip3 install git+https://github.com/nficano/pytube`
 
 Quickstart here: `https://python-pytube.readthedocs.io/en/latest/user/quickstart.html`
 
