@@ -15,7 +15,7 @@ Quickstart here: `https://python-pytube.readthedocs.io/en/latest/user/quickstart
 
 Run this on server: `open /Applications/Python\ 3.7/Install\ Certificates.command` -- MAY BE MAC SPECIFIC see --> https://github.com/nficano/pytube/issues/473
 
-
+Notes:
 
 - Depends upon endlesshack/youtube-video for deriving google video locations for files from youtube URL, which can be found here: https://github.com/endlesshack/youtube-video 
 
